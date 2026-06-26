@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BackKI – Mein Sortiment einrichten</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:     #1A120A;
+  --crust:   #B8722A;
+  --crust-l: #D4903E;
+  --dough:   #F9F3E8;
+  --cream:   #FDFAF4;
+  --smoke:   #7A6A58;
+  --border:  #E4D8C4;
+  --green:   #2B6845;
+  --red:     #A82820;
+  --white:   #FFFFFF;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--dough);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  background: rgba(26,18,10,0.97);
+  padding: 14px 24px;
+  display: flex; align-items: center;
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 1px solid rgba(184,114,42,0.2);
+}
+.nav-logo {
+  font-family: 'Fraunces', serif;
+  font-size: 20px; font-weight: 900;
+  color: #fff;
+}
+.nav-logo em { color: var(--crust); font-style: normal; }
+.nav-step {
+  margin-left: auto;
+  font-size: 12px; color: rgba(255,255,255,0.4);
+  font-weight: 500;
+}
+.nav-step span { color: var(--crust); font-weight: 600; }
+
+/* PROGRESS */
+.progress-bar {
+  height: 3px;
+  background: var(--border);
+  position: sticky; top: 53px; z-index: 99;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--crust);
+  transition: width 0.4s ease;
+}
+
+/* CONTAINER */
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* STEP */
+.step { display: none; }
+.step.active { display: block; }
+
+/* STEP HEADER */
+.step-eyebrow {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--crust); margin-bottom: 8px;
+}
+.step-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 900; line-height: 1.1;
+  color: var(--ink); margin-bottom: 10px;
+}
+.step-sub {
+  font-size: 15px; color: var(--smoke);
+  line-height: 1.7; margin-bottom: 32px;
+  max-width: 520px;
+}
+
+/* ALERT BOX */
+.alert-box {
+  background: var(--ink);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  display: flex; align-items: center; gap: 16px;
+}
+.alert-box-icon { font-size: 28px; flex-shrink: 0; }
+.alert-box-text { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+.alert-box-num {
+  font-family: 'Fraunces', serif;
+  font-size: 28px; font-weight: 900;
+  color: var(--crust-l);
+  display: block; line-height: 1;
+}
+
+/* KATEGORIE */
+.kategorie { margin-bottom: 28px; }
+.kategorie-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+.kategorie-icon { font-size: 20px; }
+.kategorie-name {
+  font-family: 'Fraunces', serif;
+  font-size: 17px; font-weight: 700;
+  color: var(--ink);
+}
+.kategorie-count {
+  margin-left: auto;
+  font-size: 11px; color: var(--smoke);
+  background: var(--border);
+  padding: 2px 8px; border-radius: 20px;
+}
+
+/* PRODUKT CARD */
+.produkt-list { display: flex; flex-direction: column; gap: 8px; }
+.produkt-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.produkt-card.active {
+  border-color: var(--crust);
+  box-shadow: 0 0 0 3px rgba(184,114,42,0.1);
+}
+.produkt-card.inactive {
+  opacity: 0.45;
+}
+.produkt-toggle {
+  width: 36px; height: 36px; flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+  color: var(--smoke);
+}
+.produkt-card.active .produkt-toggle {
+  background: var(--crust);
+  border-color: var(--crust);
+  color: white;
+}
+.produkt-info { flex: 1; }
+.produkt-name {
+  font-size: 14px; font-weight: 600;
+  color: var(--ink);
+}
+.produkt-meta {
+  font-size: 12px; color: var(--smoke); margin-top: 1px;
+}
+.produkt-preis-wrap {
+  display: flex; align-items: center; gap: 4px;
+}
+.preis-prefix {
+  font-size: 12px; color: var(--smoke);
+}
+.produkt-preis {
+  width: 64px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 14px; font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+  font-family: 'Inter', sans-serif;
+  background: var(--cream);
+  transition: border-color 0.2s;
+}
+.produkt-preis:focus {
+  outline: none;
+  border-color: var(--crust);
+}
+
+/* EIGENES PRODUKT */
+.add-produkt-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: none;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  width: 100%;
+  cursor: pointer;
+  font-size: 13px; color: var(--smoke);
+  font-family: 'Inter', sans-serif;
+  margin-top: 8px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.add-produkt-btn:hover {
+  border-color: var(--crust);
+  color: var(--crust);
+}
+
+/* ADD FORM */
+.add-form {
+  display: none;
+  background: var(--cream);
+  border: 1.5px solid var(--crust);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 8px;
+  gap: 10px;
+}
+.add-form.open { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.add-form input {
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--ink);
+  background: white;
+}
+.add-form input:focus { outline: none; border-color: var(--crust); }
+.add-form .f-name { flex: 1; min-width: 140px; }
+.add-form .f-preis { width: 80px; }
+.add-form-btn {
+  background: var(--crust);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+/* BASELINE STEP */
+.baseline-list { display: flex; flex-direction: column; gap: 10px; }
+.baseline-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.baseline-info { flex: 1; }
+.baseline-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.baseline-kat { font-size: 12px; color: var(--smoke); }
+.baseline-input-wrap {
+  display: flex; align-items: center; gap: 6px;
+}
+.baseline-input {
+  width: 72px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 15px; font-weight: 600;
+  text-align: center;
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  background: var(--cream);
+}
+.baseline-input:focus { outline: none; border-color: var(--crust); }
+.baseline-unit { font-size: 12px; color: var(--smoke); }
+
+/* RISIKO BOX */
+.risiko-box {
+  background: var(--ink);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 28px;
+  text-align: center;
+}
+.risiko-label {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: rgba(255,255,255,0.4); margin-bottom: 8px;
+}
+.risiko-betrag {
+  font-family: 'Fraunces', serif;
+  font-size: 52px; font-weight: 900;
+  color: var(--crust-l);
+  line-height: 1;
+}
+.risiko-sub {
+  font-size: 13px; color: rgba(255,255,255,0.5);
+  margin-top: 8px;
+}
+.risiko-items {
+  margin-top: 20px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.risiko-item {
+  display: flex; justify-content: space-between;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.6);
+}
+.risiko-item-val { color: var(--crust-l); font-weight: 600; }
+
+/* NAVIGATION BUTTONS */
+.btn-row {
+  display: flex; gap: 12px;
+  margin-top: 32px;
+}
+.btn-primary {
+  flex: 1;
+  background: var(--crust);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-primary:hover { background: var(--crust-l); transform: translateY(-1px); }
+.btn-secondary {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  font-size: 14px; color: var(--smoke);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s;
+}
+.btn-secondary:hover { border-color: var(--smoke); }
+
+/* SUCCESS */
+.success-wrap {
+  text-align: center;
+  padding: 40px 0;
+}
+.success-icon { font-size: 64px; margin-bottom: 20px; }
+.success-title {
+  font-family: 'Fraunces', serif;
+  font-size: 32px; font-weight: 900;
+  color: var(--ink); margin-bottom: 12px;
+}
+.success-sub {
+  font-size: 15px; color: var(--smoke);
+  line-height: 1.7; max-width: 440px;
+  margin: 0 auto 32px;
+}
+.success-box {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+.success-box-title {
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--smoke); margin-bottom: 12px;
+}
+.success-row {
+  display: flex; justify-content: space-between;
+  font-size: 14px; padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+}
+.success-row:last-child { border-bottom: none; }
+.success-row-val { font-weight: 600; color: var(--crust); }
+
+@media (max-width: 480px) {
+  .container { padding: 24px 16px 60px; }
+  .risiko-betrag { font-size: 40px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Back<em>KI</em></div>
+  <div class="nav-step">Schritt <span id="nav-step-num">1</span> von 3</div>
+</nav>
+<div class="progress-bar">
+  <div class="progress-fill" id="progress-fill" style="width:33%"></div>
+</div>
+
+<div class="container">
+
+  <!-- ══ SCHRITT 1: SORTIMENT ══ -->
+  <div class="step active" id="step-1">
+    <p class="step-eyebrow">Schritt 1 von 3 · Ihr Sortiment</p>
+    <h1 class="step-title">Was backen Sie täglich?</h1>
+    <p class="step-sub">Wählen Sie Ihre Produkte aus und tragen Sie den Verkaufspreis ein. Produkte die Sie nicht führen — einfach deaktivieren.</p>
+
+    <div id="sortiment-container"></div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="goStep2()">Weiter — Tagesmengen festlegen →</button>
+    </div>
+  </div>
+
+  <!-- ══ SCHRITT 2: BASELINE ══ -->
+  <div class="step" id="step-2">
+    <p class="step-eyebrow">Schritt 2 von 3 · Tagesmengen</p>
+    <h1 class="step-title">Wie viel backen Sie typisch?</h1>
+    <p class="step-sub">Nur eine grobe Schätzung genügt. BackKI lernt mit der Zeit. Diese Zahl ist Ihr Ausgangspunkt — kein Vertrag.</p>
+
+    <div class="baseline-list" id="baseline-list"></div>
+
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="goStep(1)">← Zurück</button>
+      <button class="btn-primary" onclick="goStep3()">Mein Wegwurf-Risiko berechnen →</button>
+    </div>
+  </div>
+
+  <!-- ══ SCHRITT 3: RISIKO ══ -->
+  <div class="step" id="step-3">
+    <p class="step-eyebrow">Schritt 3 von 3 · Ihr Potenzial</p>
+    <h1 class="step-title">So viel können Sie einsparen.</h1>
+    <p class="step-sub">Bei einer durchschnittlichen Retourenquote von 15 % — und was BackKI realistisch einsparen kann.</p>
+
+    <div class="risiko-box">
+      <div class="risiko-label">Ihr maximales Tages-Wegwurfrisiko</div>
+      <div class="risiko-betrag" id="risiko-betrag">0 €</div>
+      <div class="risiko-sub">bei 15 % Retourenquote · nur für Ihre aktiven Produkte</div>
+      <div class="risiko-items" id="risiko-items"></div>
+    </div>
+
+    <div style="background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:24px;">
+      <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--smoke);margin-bottom:14px;">Was BackKI für Sie bedeutet</div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;">
+        <span style="color:var(--smoke)">Wegwurf pro Monat (aktuell)</span>
+        <span style="font-weight:700;color:var(--red)" id="verlust-monat">0 €</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;">
+        <span style="color:var(--smoke)">Einsparung mit BackKI (30 %)</span>
+        <span style="font-weight:700;color:var(--green)" id="einsparung">0 €</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;">
+        <span style="color:var(--smoke)">BackKI kostet Sie monatlich</span>
+        <span style="font-weight:700;color:var(--ink)">29 € zzgl. MwSt.</span>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="goStep(2)">← Zurück</button>
+      <button class="btn-primary" onclick="goSuccess()">Jetzt loslegen — Sortiment speichern ✓</button>
+    </div>
+  </div>
+
+  <!-- ══ SUCCESS ══ -->
+  <div class="step" id="step-success">
+    <div class="success-wrap">
+      <div class="success-icon">🎉</div>
+      <h1 class="success-title">Ihr Sortiment ist bereit!</h1>
+      <p class="success-sub">Ab heute können Sie täglich Ihre Retouren eintragen. BackKI berechnet Ihren Verlust automatisch — und gibt Ihnen nach 4 Wochen erste Empfehlungen.</p>
+
+      <div class="success-box">
+        <div class="success-box-title">Ihre nächsten Schritte</div>
+        <div class="success-row">
+          <span>📅 Heute noch</span>
+          <span class="success-row-val">Erste Retouren eintragen</span>
+        </div>
+        <div class="success-row">
+          <span>📊 Nach 7 Tagen</span>
+          <span class="success-row-val">Erste Wochenauswertung</span>
+        </div>
+        <div class="success-row">
+          <span>💡 Nach 4 Wochen</span>
+          <span class="success-row-val">KI-Empfehlungen aktiv</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="alert('→ Weiterleitung zum täglichen Erfassungstool')" style="max-width:400px;margin:0 auto;display:block;">
+        Jetzt erste Retouren erfassen →
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── MUSTERSORTIMENT ──
+var SORTIMENT = [
+  { kat: 'Brot', icon: '🍞', produkte: [
+    { name: 'Roggenbrot', preis: 3.20 },
+    { name: 'Vollkornbrot', preis: 3.50 },
+    { name: 'Weißbrot', preis: 2.80 },
+    { name: 'Bauernbrot', preis: 3.80 },
+  ]},
+  { kat: 'Brötchen', icon: '🥖', produkte: [
+    { name: 'Semmel', preis: 0.40 },
+    { name: 'Vollkornbrötchen', preis: 0.55 },
+    { name: 'Laugenbrötchen', preis: 0.60 },
+  ]},
+  { kat: 'Belegte Brötchen', icon: '🥪', produkte: [
+    { name: 'Käsebrötchen', preis: 2.50 },
+    { name: 'Wurstbrötchen', preis: 2.80 },
+    { name: 'Lachsbrötchen', preis: 3.50 },
+  ]},
+  { kat: 'Kuchen', icon: '🎂', produkte: [
+    { name: 'Käsekuchen', preis: 2.80 },
+    { name: 'Streuselkuchen', preis: 2.20 },
+    { name: 'Schwarzwälder', preis: 3.20 },
+    { name: 'Obstkuchen', preis: 2.60 },
+  ]},
+  { kat: 'Süße Stückle', icon: '🥐', produkte: [
+    { name: 'Berliner', preis: 0.90 },
+    { name: 'Croissant', preis: 1.20 },
+    { name: 'Schnecke', preis: 1.10 },
+  ]},
+  { kat: 'Brezel', icon: '🥨', produkte: [
+    { name: 'Laugenbrezel', preis: 0.75 },
+    { name: 'Butterbrezel', preis: 1.10 },
+  ]},
+];
+
+// State
+var state = {};
+SORTIMENT.forEach(function(k) {
+  k.produkte.forEach(function(p) {
+    var id = k.kat + '_' + p.name;
+    state[id] = { kat: k.kat, name: p.name, preis: p.preis, aktiv: true, baseline: 20 };
+  });
+});
+
+// ── RENDER SORTIMENT ──
+function renderSortiment() {
+  var container = document.getElementById('sortiment-container');
+  container.innerHTML = '';
+
+  SORTIMENT.forEach(function(k) {
+    var aktiveCount = k.produkte.filter(function(p) {
+      return state[k.kat + '_' + p.name] && state[k.kat + '_' + p.name].aktiv;
+    }).length;
+
+    var div = document.createElement('div');
+    div.className = 'kategorie';
+    div.innerHTML =
+      '<div class="kategorie-header">' +
+        '<span class="kategorie-icon">' + k.icon + '</span>' +
+        '<span class="kategorie-name">' + k.kat + '</span>' +
+        '<span class="kategorie-count" id="count-' + k.kat + '">' + aktiveCount + ' aktiv</span>' +
+      '</div>' +
+      '<div class="produkt-list" id="list-' + k.kat + '"></div>' +
+      '<button class="add-produkt-btn" onclick="toggleAddForm(\'' + k.kat + '\')">' +
+        '<span>+</span> Eigenes Produkt hinzufügen' +
+      '</button>' +
+      '<div class="add-form" id="add-form-' + k.kat + '">' +
+        '<input type="text" class="f-name" placeholder="Produktname" id="new-name-' + k.kat + '">' +
+        '<input type="number" class="f-preis" placeholder="Preis €" step="0.05" id="new-preis-' + k.kat + '">' +
+        '<button class="add-form-btn" onclick="addProdukt(\'' + k.kat + '\')">Hinzufügen</button>' +
+      '</div>';
+    container.appendChild(div);
+
+    k.produkte.forEach(function(p) {
+      renderProduktCard(k.kat, p.name);
+    });
+  });
+}
+
+function renderProduktCard(kat, name) {
+  var id = kat + '_' + name;
+  var s = state[id];
+  var list = document.getElementById('list-' + kat);
+
+  var card = document.createElement('div');
+  card.className = 'produkt-card ' + (s.aktiv ? 'active' : 'inactive');
+  card.id = 'card-' + id;
+  card.innerHTML =
+    '<button class="produkt-toggle" onclick="toggleProdukt(\'' + id + '\')">' +
+      (s.aktiv ? '✓' : '') +
+    '</button>' +
+    '<div class="produkt-info">' +
+      '<div class="produkt-name">' + name + '</div>' +
+      '<div class="produkt-meta">' + kat + '</div>' +
+    '</div>' +
+    '<div class="produkt-preis-wrap">' +
+      '<span class="preis-prefix">€</span>' +
+      '<input class="produkt-preis" type="number" step="0.05" min="0.10" value="' + s.preis.toFixed(2) + '" ' +
+        'onchange="updatePreis(\'' + id + '\', this.value)" ' +
+        'onclick="event.stopPropagation()">' +
+    '</div>';
+  list.appendChild(card);
+}
+
+function toggleProdukt(id) {
+  state[id].aktiv = !state[id].aktiv;
+  var card = document.getElementById('card-' + id);
+  card.className = 'produkt-card ' + (state[id].aktiv ? 'active' : 'inactive');
+  card.querySelector('.produkt-toggle').textContent = state[id].aktiv ? '✓' : '';
+  updateKatCount(state[id].kat);
+}
+
+function updatePreis(id, val) {
+  state[id].preis = parseFloat(val) || 0;
+}
+
+function updateKatCount(kat) {
+  var count = Object.values(state).filter(function(s) { return s.kat === kat && s.aktiv; }).length;
+  var el = document.getElementById('count-' + kat);
+  if (el) el.textContent = count + ' aktiv';
+}
+
+function toggleAddForm(kat) {
+  var form = document.getElementById('add-form-' + kat);
+  form.classList.toggle('open');
+}
+
+function addProdukt(kat) {
+  var nameEl = document.getElementById('new-name-' + kat);
+  var preisEl = document.getElementById('new-preis-' + kat);
+  var name = nameEl.value.trim();
+  var preis = parseFloat(preisEl.value) || 1.00;
+  if (!name) { nameEl.focus(); return; }
+
+  var id = kat + '_' + name;
+  state[id] = { kat: kat, name: name, preis: preis, aktiv: true, baseline: 10 };
+
+  // Zur Kategorie hinzufügen
+  var katObj = SORTIMENT.find(function(k) { return k.kat === kat; });
+  if (katObj) katObj.produkte.push({ name: name, preis: preis });
+
+  renderProduktCard(kat, name);
+  updateKatCount(kat);
+  nameEl.value = '';
+  preisEl.value = '';
+  document.getElementById('add-form-' + kat).classList.remove('open');
+}
+
+// ── STEP 2: BASELINE ──
+function renderBaseline() {
+  var list = document.getElementById('baseline-list');
+  list.innerHTML = '';
+  var aktive = Object.values(state).filter(function(s) { return s.aktiv; });
+
+  aktive.forEach(function(s) {
+    var id = s.kat + '_' + s.name;
+    var card = document.createElement('div');
+    card.className = 'baseline-card';
+    card.innerHTML =
+      '<div class="baseline-info">' +
+        '<div class="baseline-name">' + s.name + '</div>' +
+        '<div class="baseline-kat">' + s.kat + '</div>' +
+      '</div>' +
+      '<div class="baseline-input-wrap">' +
+        '<input class="baseline-input" type="number" min="1" value="' + s.baseline + '" ' +
+          'onchange="updateBaseline(\'' + id + '\', this.value)">' +
+        '<span class="baseline-unit">Stück/Tag</span>' +
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+function updateBaseline(id, val) {
+  if (state[id]) state[id].baseline = parseInt(val) || 0;
+}
+
+// ── STEP 3: RISIKO ──
+function renderRisiko() {
+  var aktive = Object.values(state).filter(function(s) { return s.aktiv; });
+  var tagesRisiko = 0;
+  var items = [];
+
+  aktive.forEach(function(s) {
+    var verlustStk = Math.round(s.baseline * 0.15);
+    var verlustEur = verlustStk * s.preis;
+    tagesRisiko += verlustEur;
+    if (verlustEur > 0) {
+      items.push({ name: s.name, verlust: verlustEur });
+    }
+  });
+
+  items.sort(function(a, b) { return b.verlust - a.verlust; });
+
+  document.getElementById('risiko-betrag').textContent = tagesRisiko.toFixed(2).replace('.', ',') + ' €';
+
+  var monat = tagesRisiko * 26; // 26 Werktage
+  var einsparung = monat * 0.30;
+  document.getElementById('verlust-monat').textContent = monat.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €';
+  document.getElementById('einsparung').textContent = einsparung.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €';
+
+  var itemsEl = document.getElementById('risiko-items');
+  itemsEl.innerHTML = '';
+  items.slice(0, 5).forEach(function(item) {
+    var div = document.createElement('div');
+    div.className = 'risiko-item';
+    div.innerHTML =
+      '<span>' + item.name + '</span>' +
+      '<span class="risiko-item-val">− ' + item.verlust.toFixed(2).replace('.', ',') + ' €/Tag</span>';
+    itemsEl.appendChild(div);
+  });
+}
+
+// ── NAVIGATION ──
+var currentStep = 1;
+
+function goStep(n) {
+  document.getElementById('step-' + currentStep).classList.remove('active');
+  currentStep = n;
+  document.getElementById('step-' + n).classList.add('active');
+  document.getElementById('nav-step-num').textContent = n;
+  document.getElementById('progress-fill').style.width = (n / 3 * 100) + '%';
+  window.scrollTo(0, 0);
+}
+
+function goStep2() {
+  var aktive = Object.values(state).filter(function(s) { return s.aktiv; });
+  if (aktive.length === 0) { alert('Bitte wählen Sie mindestens ein Produkt aus.'); return; }
+  renderBaseline();
+  goStep(2);
+}
+
+function goStep3() {
+  renderRisiko();
+  goStep(3);
+}
+
+function goSuccess() {
+  document.getElementById('step-3').classList.remove('active');
+  document.getElementById('step-success').classList.add('active');
+  document.getElementById('nav-step-num').textContent = '✓';
+  document.getElementById('progress-fill').style.width = '100%';
+  window.scrollTo(0, 0);
+}
+
+// ── INIT ──
+renderSortiment();
+</script>
+</body>
+</html>
