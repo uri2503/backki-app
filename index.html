@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BackKI – Tageserfassung</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:     #1A120A;
+  --crust:   #B8722A;
+  --crust-l: #D4903E;
+  --dough:   #F9F3E8;
+  --cream:   #FDFAF4;
+  --smoke:   #7A6A58;
+  --border:  #E4D8C4;
+  --green:   #2B6845;
+  --green-l: #EBF5EF;
+  --red:     #A82820;
+  --red-l:   #FDECEA;
+  --yellow:  #B8860B;
+  --yellow-l:#FEF9E7;
+  --white:   #FFFFFF;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--dough);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  background: rgba(26,18,10,0.97);
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+}
+.nav-logo {
+  font-family: 'Fraunces', serif;
+  font-size: 20px; font-weight: 900; color: #fff;
+}
+.nav-logo em { color: var(--crust); font-style: normal; }
+.nav-date {
+  margin-left: auto;
+  font-size: 12px; color: rgba(255,255,255,0.5);
+  font-weight: 500;
+}
+.nav-streak {
+  background: var(--crust);
+  color: white;
+  font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px;
+}
+
+/* CONTAINER */
+.container { max-width: 640px; margin: 0 auto; padding: 28px 20px 80px; }
+
+/* TAGES-HEADER */
+.tages-header {
+  background: var(--ink);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 20px;
+}
+.tages-header-left { flex: 1; }
+.tages-greeting {
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.4); margin-bottom: 4px;
+}
+.tages-title {
+  font-family: 'Fraunces', serif;
+  font-size: 22px; font-weight: 900; color: #fff;
+  line-height: 1.2;
+}
+.tages-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+.tages-counter {
+  text-align: center; flex-shrink: 0;
+}
+.tages-counter-num {
+  font-family: 'Fraunces', serif;
+  font-size: 40px; font-weight: 900;
+  color: var(--crust-l); line-height: 1;
+}
+.tages-counter-label {
+  font-size: 10px; color: rgba(255,255,255,0.35);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* SCHNELL-STATUS */
+.status-row {
+  display: flex; gap: 10px; margin-bottom: 24px;
+}
+.status-card {
+  flex: 1; background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 14px 16px;
+  text-align: center;
+}
+.status-card-val {
+  font-family: 'Fraunces', serif;
+  font-size: 24px; font-weight: 900;
+  line-height: 1;
+}
+.status-card-label {
+  font-size: 11px; color: var(--smoke);
+  margin-top: 4px;
+}
+.val-red { color: var(--red); }
+.val-green { color: var(--green); }
+.val-ink { color: var(--ink); }
+
+/* KATEGORIE */
+.kategorie { margin-bottom: 20px; }
+.kat-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border);
+}
+.kat-icon { font-size: 18px; }
+.kat-name {
+  font-family: 'Fraunces', serif;
+  font-size: 16px; font-weight: 700; color: var(--ink);
+}
+.kat-verlust {
+  margin-left: auto;
+  font-size: 12px; font-weight: 600; color: var(--red);
+}
+
+/* PRODUKT ZEILE */
+.produkt-zeile {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color 0.2s;
+}
+.produkt-zeile.hat-retoure { border-color: var(--crust); }
+.produkt-zeile.kein-retoure { border-color: var(--green); background: var(--green-l); }
+
+.pz-info { flex: 1; min-width: 0; }
+.pz-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.pz-baseline { font-size: 11px; color: var(--smoke); }
+
+.pz-stepper {
+  display: flex; align-items: center; gap: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.pz-btn {
+  width: 36px; height: 36px;
+  border: none; background: var(--dough);
+  font-size: 18px; font-weight: 700;
+  cursor: pointer; color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.pz-btn:active { background: var(--border); }
+.pz-val {
+  width: 44px; height: 36px;
+  border: none; border-left: 1.5px solid var(--border); border-right: 1.5px solid var(--border);
+  text-align: center;
+  font-size: 16px; font-weight: 700; color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  background: var(--white);
+}
+.pz-val:focus { outline: none; background: var(--cream); }
+
+.pz-verlust {
+  min-width: 68px; text-align: right;
+  font-size: 13px; font-weight: 700;
+  color: var(--red);
+}
+.pz-verlust.zero { color: var(--green); font-size: 18px; }
+
+/* ALLE NULL BUTTON */
+.alle-null-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: none;
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  width: 100%;
+  cursor: pointer;
+  font-size: 12px; color: var(--smoke);
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 20px;
+  transition: all 0.2s;
+}
+.alle-null-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* ABSCHLUSS BOX */
+.abschluss-box {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.ab-title {
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--smoke); margin-bottom: 16px;
+}
+.ab-row {
+  display: flex; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.ab-row:last-child { border-bottom: none; }
+.ab-row-val { font-weight: 700; }
+.ab-row-val.red { color: var(--red); }
+.ab-row-val.green { color: var(--green); }
+.ab-row-val.crust { color: var(--crust); }
+
+/* MOTIVATION */
+.motivation-box {
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  font-size: 14px; line-height: 1.6;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.motivation-box.gut { background: var(--green-l); border: 1.5px solid #B8E0C8; color: var(--green); }
+.motivation-box.mittel { background: var(--yellow-l); border: 1.5px solid #F0D080; color: var(--yellow); }
+.motivation-box.schlecht { background: var(--red-l); border: 1.5px solid #F0B8B4; color: var(--red); }
+.motivation-icon { font-size: 22px; flex-shrink: 0; }
+
+/* SPEICHERN BTN */
+.btn-speichern {
+  width: 100%;
+  background: var(--crust);
+  color: white; border: none;
+  border-radius: 12px; padding: 18px;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: background 0.2s, transform 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-speichern:hover { background: var(--crust-l); transform: translateY(-1px); }
+.btn-speichern:disabled { background: var(--border); color: var(--smoke); cursor: not-allowed; transform: none; }
+
+/* WOCHE MINI */
+.woche-wrap {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.woche-title {
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--smoke); margin-bottom: 12px;
+}
+.woche-tage {
+  display: flex; gap: 6px;
+}
+.woche-tag {
+  flex: 1; text-align: center;
+}
+.woche-tag-name {
+  font-size: 10px; color: var(--smoke);
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.woche-tag-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.dot-gruen { background: var(--green-l); }
+.dot-gelb { background: var(--yellow-l); }
+.dot-rot { background: var(--red-l); }
+.dot-leer { background: var(--border); }
+.dot-heute { background: var(--crust); }
+.woche-tag-val {
+  font-size: 10px; color: var(--smoke);
+  margin-top: 3px;
+}
+
+/* SUCCESS OVERLAY */
+.success-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(26,18,10,0.85);
+  z-index: 200;
+  align-items: center; justify-content: center;
+}
+.success-overlay.show { display: flex; }
+.success-modal {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 360px; width: 90%;
+  animation: popIn 0.3s ease;
+}
+@keyframes popIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.success-modal-icon { font-size: 52px; margin-bottom: 16px; }
+.success-modal-title {
+  font-family: 'Fraunces', serif;
+  font-size: 24px; font-weight: 900; color: var(--ink);
+  margin-bottom: 8px;
+}
+.success-modal-sub { font-size: 14px; color: var(--smoke); line-height: 1.6; margin-bottom: 24px; }
+.success-modal-verlust {
+  font-family: 'Fraunces', serif;
+  font-size: 36px; font-weight: 900; color: var(--red);
+  margin-bottom: 4px;
+}
+.success-modal-verlust-label { font-size: 12px; color: var(--smoke); margin-bottom: 24px; }
+.btn-close-modal {
+  background: var(--crust); color: white;
+  border: none; border-radius: 10px;
+  padding: 14px 32px;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+}
+
+@media (max-width: 480px) {
+  .container { padding: 20px 14px 60px; }
+  .tages-header { flex-direction: column; text-align: center; gap: 12px; }
+  .tages-counter-num { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Back<em>KI</em></div>
+  <div class="nav-streak" id="streak-badge">🔥 5 Tage</div>
+  <div class="nav-date" id="nav-date"></div>
+</nav>
+
+<div class="container">
+
+  <!-- TAGES HEADER -->
+  <div class="tages-header">
+    <div class="tages-header-left">
+      <div class="tages-greeting">Guten Abend, Bäckerei Müller</div>
+      <div class="tages-title">Was ist heute<br>übrig geblieben?</div>
+      <div class="tages-sub">30 Sekunden — dann ist der Tag dokumentiert.</div>
+    </div>
+    <div class="tages-counter">
+      <div class="tages-counter-num" id="gesamt-verlust-header">0 €</div>
+      <div class="tages-counter-label">Verlust heute</div>
+    </div>
+  </div>
+
+  <!-- WOCHE MINI -->
+  <div class="woche-wrap">
+    <div class="woche-title">Diese Woche</div>
+    <div class="woche-tage" id="woche-tage"></div>
+  </div>
+
+  <!-- SCHNELL STATUS -->
+  <div class="status-row">
+    <div class="status-card">
+      <div class="status-card-val val-red" id="status-verlust">0,00 €</div>
+      <div class="status-card-label">Verlust heute</div>
+    </div>
+    <div class="status-card">
+      <div class="status-card-val val-ink" id="status-produkte">0</div>
+      <div class="status-card-label">Produkte erfasst</div>
+    </div>
+    <div class="status-card">
+      <div class="status-card-val val-green" id="status-quote">0 %</div>
+      <div class="status-card-label">Retourenquote</div>
+    </div>
+  </div>
+
+  <!-- ALLE AUF NULL -->
+  <button class="alle-null-btn" onclick="alleNull()">
+    ✓ Alles verkauft — heute null Retouren
+  </button>
+
+  <!-- SORTIMENT -->
+  <div id="erfassung-container"></div>
+
+  <!-- ABSCHLUSS -->
+  <div class="abschluss-box">
+    <div class="ab-title">Tagesabschluss</div>
+    <div class="ab-row">
+      <span style="color:var(--smoke)">Verlust heute</span>
+      <span class="ab-row-val red" id="ab-verlust-heute">0,00 €</span>
+    </div>
+    <div class="ab-row">
+      <span style="color:var(--smoke)">Verlust diese Woche</span>
+      <span class="ab-row-val red" id="ab-verlust-woche">38,40 €</span>
+    </div>
+    <div class="ab-row">
+      <span style="color:var(--smoke)">Hochrechnung Monat</span>
+      <span class="ab-row-val red" id="ab-verlust-monat">0,00 €</span>
+    </div>
+    <div class="ab-row">
+      <span style="color:var(--smoke)">Bestes Produkt heute</span>
+      <span class="ab-row-val green" id="ab-best">—</span>
+    </div>
+    <div class="ab-row">
+      <span style="color:var(--smoke)">Größter Posten</span>
+      <span class="ab-row-val crust" id="ab-worst">—</span>
+    </div>
+  </div>
+
+  <!-- MOTIVATION -->
+  <div class="motivation-box" id="motivation-box" style="display:none"></div>
+
+  <!-- SPEICHERN -->
+  <button class="btn-speichern" id="btn-speichern" onclick="speichern()">
+    <span>✓</span> Tag abschließen & speichern
+  </button>
+
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-modal">
+    <div class="success-modal-icon">📊</div>
+    <div class="success-modal-title">Tag gespeichert!</div>
+    <div class="success-modal-sub">Ihr heutiger Verlust:</div>
+    <div class="success-modal-verlust" id="modal-verlust">0,00 €</div>
+    <div class="success-modal-verlust-label">BackKI lernt mit jedem Tag dazu.</div>
+    <div id="modal-msg" style="font-size:13px;color:#7A6A58;margin-bottom:20px;line-height:1.6;"></div>
+    <button class="btn-close-modal" onclick="closeModal()">Weiter →</button>
+  </div>
+</div>
+
+<script>
+// ── DEMO SORTIMENT (aus Onboarding übernommen) ──
+var PRODUKTE = [
+  { kat:'Brot',             icon:'🍞', name:'Roggenbrot',      preis:3.20, baseline:15 },
+  { kat:'Brot',             icon:'🍞', name:'Vollkornbrot',    preis:3.50, baseline:10 },
+  { kat:'Brötchen',         icon:'🥖', name:'Semmel',          preis:0.40, baseline:120 },
+  { kat:'Brötchen',         icon:'🥖', name:'Laugenbrötchen',  preis:0.60, baseline:40 },
+  { kat:'Belegte Brötchen', icon:'🥪', name:'Käsebrötchen',    preis:2.50, baseline:25 },
+  { kat:'Belegte Brötchen', icon:'🥪', name:'Wurstbrötchen',   preis:2.80, baseline:20 },
+  { kat:'Kuchen',           icon:'🎂', name:'Käsekuchen',      preis:2.80, baseline:12 },
+  { kat:'Kuchen',           icon:'🎂', name:'Streuselkuchen',  preis:2.20, baseline:10 },
+  { kat:'Süße Stückle',     icon:'🥐', name:'Berliner',        preis:0.90, baseline:50 },
+  { kat:'Süße Stückle',     icon:'🥐', name:'Croissant',       preis:1.20, baseline:30 },
+  { kat:'Brezel',           icon:'🥨', name:'Laugenbrezel',    preis:0.75, baseline:60 },
+];
+
+// Demo Wochendaten
+var wocheDaten = [
+  { tag:'Mo', verlust: 18.40, erfasst: true },
+  { tag:'Di', verlust: 22.80, erfasst: true },
+  { tag:'Mi', verlust: 14.20, erfasst: true },
+  { tag:'Do', verlust: 19.60, erfasst: true },
+  { tag:'Fr', verlust: null,  erfasst: false }, // heute
+  { tag:'Sa', verlust: null,  erfasst: false },
+  { tag:'So', verlust: null,  erfasst: false },
+];
+
+var retouren = {}; // { produktname: anzahl }
+PRODUKTE.forEach(function(p) { retouren[p.name] = 0; });
+
+// ── DATUM ──
+function formatDatum() {
+  var d = new Date();
+  var tage = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  var monate = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  return tage[d.getDay()] + ', ' + d.getDate() + '. ' + monate[d.getMonth()];
+}
+document.getElementById('nav-date').textContent = formatDatum();
+
+// ── WOCHE RENDER ──
+function renderWoche() {
+  var el = document.getElementById('woche-tage');
+  el.innerHTML = '';
+  var heute = 4; // Freitag = Index 4
+
+  wocheDaten.forEach(function(w, i) {
+    var dotClass = 'dot-leer';
+    var icon = '';
+    if (i === heute) {
+      dotClass = 'dot-heute'; icon = '●';
+    } else if (w.erfasst) {
+      if (w.verlust < 15) { dotClass = 'dot-gruen'; icon = '✓'; }
+      else if (w.verlust < 25) { dotClass = 'dot-gelb'; icon = '~'; }
+      else { dotClass = 'dot-rot'; icon = '!'; }
+    }
+
+    var div = document.createElement('div');
+    div.className = 'woche-tag';
+    div.innerHTML =
+      '<div class="woche-tag-name">' + w.tag + '</div>' +
+      '<div class="woche-tag-dot ' + dotClass + '">' + icon + '</div>' +
+      '<div class="woche-tag-val">' + (w.erfasst ? w.verlust.toFixed(0) + '€' : '—') + '</div>';
+    el.appendChild(div);
+  });
+}
+
+// ── ERFASSUNG RENDER ──
+function renderErfassung() {
+  var container = document.getElementById('erfassung-container');
+  container.innerHTML = '';
+
+  var kats = [];
+  PRODUKTE.forEach(function(p) {
+    if (!kats.includes(p.kat)) kats.push(p.kat);
+  });
+
+  kats.forEach(function(kat) {
+    var prods = PRODUKTE.filter(function(p) { return p.kat === kat; });
+    var icon = prods[0].icon;
+
+    var div = document.createElement('div');
+    div.className = 'kategorie';
+    div.innerHTML =
+      '<div class="kat-header">' +
+        '<span class="kat-icon">' + icon + '</span>' +
+        '<span class="kat-name">' + kat + '</span>' +
+        '<span class="kat-verlust" id="kat-verlust-' + kat.replace(/\s/g,'_') + '">0,00 €</span>' +
+      '</div>';
+
+    prods.forEach(function(p) {
+      var zeile = document.createElement('div');
+      zeile.className = 'produkt-zeile';
+      zeile.id = 'zeile-' + p.name.replace(/\s/g,'_');
+      zeile.innerHTML =
+        '<div class="pz-info">' +
+          '<div class="pz-name">' + p.name + '</div>' +
+          '<div class="pz-baseline">Baseline: ' + p.baseline + ' Stück · ' + p.preis.toFixed(2).replace('.',',') + ' € / Stück</div>' +
+        '</div>' +
+        '<div class="pz-stepper">' +
+          '<button class="pz-btn" onclick="step(\'' + p.name + '\', -1)">−</button>' +
+          '<input class="pz-val" type="number" min="0" value="0" id="val-' + p.name.replace(/\s/g,'_') + '" ' +
+            'onchange="setVal(\'' + p.name + '\', this.value)">' +
+          '<button class="pz-btn" onclick="step(\'' + p.name + '\', 1)">+</button>' +
+        '</div>' +
+        '<div class="pz-verlust zero" id="verlust-' + p.name.replace(/\s/g,'_') + '">✓</div>';
+      div.appendChild(zeile);
+    });
+
+    container.appendChild(div);
+  });
+}
+
+function step(name, delta) {
+  var id = name.replace(/\s/g,'_');
+  var input = document.getElementById('val-' + id);
+  var val = Math.max(0, (parseInt(input.value) || 0) + delta);
+  input.value = val;
+  retouren[name] = val;
+  updateZeile(name);
+  updateTotals();
+}
+
+function setVal(name, val) {
+  retouren[name] = Math.max(0, parseInt(val) || 0);
+  updateZeile(name);
+  updateTotals();
+}
+
+function updateZeile(name) {
+  var id = name.replace(/\s/g,'_');
+  var p = PRODUKTE.find(function(x) { return x.name === name; });
+  var val = retouren[name];
+  var verlust = val * p.preis;
+
+  var zeile = document.getElementById('zeile-' + id);
+  var verlustEl = document.getElementById('verlust-' + id);
+
+  if (val === 0) {
+    zeile.className = 'produkt-zeile kein-retoure';
+    verlustEl.className = 'pz-verlust zero';
+    verlustEl.textContent = '✓';
+  } else {
+    zeile.className = 'produkt-zeile hat-retoure';
+    verlustEl.className = 'pz-verlust';
+    verlustEl.textContent = '− ' + verlust.toFixed(2).replace('.',',') + ' €';
+  }
+}
+
+function updateTotals() {
+  var gesamt = 0;
+  var erfasst = 0;
+  var gesamtBaseline = 0;
+  var gesamtRetoure = 0;
+  var worst = null; var worstVal = 0;
+  var best = null;
+
+  // Kategorien-Verluste
+  var katVerluste = {};
+
+  PRODUKTE.forEach(function(p) {
+    var val = retouren[p.name];
+    var verlust = val * p.preis;
+    gesamt += verlust;
+    gesamtBaseline += p.baseline;
+    gesamtRetoure += val;
+    erfasst++;
+
+    var katKey = p.kat.replace(/\s/g,'_');
+    katVerluste[katKey] = (katVerluste[katKey] || 0) + verlust;
+
+    if (verlust > worstVal) { worstVal = verlust; worst = p.name; }
+    if (val === 0) { best = p.name; }
+  });
+
+  // Update Kat-Verluste
+  Object.keys(katVerluste).forEach(function(k) {
+    var el = document.getElementById('kat-verlust-' + k);
+    if (el) {
+      el.textContent = katVerluste[k] > 0 ? '− ' + katVerluste[k].toFixed(2).replace('.',',') + ' €' : '✓ alles verkauft';
+      el.style.color = katVerluste[k] > 0 ? 'var(--red)' : 'var(--green)';
+    }
+  });
+
+  var quote = gesamtBaseline > 0 ? Math.round(gesamtRetoure / gesamtBaseline * 100) : 0;
+  var monat = gesamt * 26;
+
+  // Header
+  document.getElementById('gesamt-verlust-header').textContent = gesamt.toFixed(2).replace('.',',') + ' €';
+
+  // Status Cards
+  document.getElementById('status-verlust').textContent = gesamt.toFixed(2).replace('.',',') + ' €';
+  document.getElementById('status-produkte').textContent = erfasst;
+  document.getElementById('status-quote').textContent = quote + ' %';
+  document.getElementById('status-quote').className = 'status-card-val ' + (quote < 10 ? 'val-green' : quote < 20 ? 'val-ink' : 'val-red');
+
+  // Abschluss
+  document.getElementById('ab-verlust-heute').textContent = gesamt.toFixed(2).replace('.',',') + ' €';
+  document.getElementById('ab-verlust-monat').textContent = monat.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.') + ' €';
+  document.getElementById('ab-best').textContent = best ? best + ' (0 Retouren)' : '—';
+  document.getElementById('ab-worst').textContent = worst && worstVal > 0 ? worst + ' (− ' + worstVal.toFixed(2).replace('.',',') + ' €)' : '—';
+
+  // Motivation
+  var motEl = document.getElementById('motivation-box');
+  if (gesamt === 0 && erfasst > 0) {
+    motEl.style.display = 'flex';
+    motEl.className = 'motivation-box gut';
+    motEl.innerHTML = '<span class="motivation-icon">🏆</span><span><strong>Perfekter Tag!</strong> Alles verkauft. Das ist Ihr Ziel — und heute haben Sie es erreicht.</span>';
+  } else if (quote < 10) {
+    motEl.style.display = 'flex';
+    motEl.className = 'motivation-box gut';
+    motEl.innerHTML = '<span class="motivation-icon">👍</span><span><strong>Sehr guter Tag.</strong> Retourenquote unter 10 % — BackKI sieht einen positiven Trend.</span>';
+  } else if (quote < 20) {
+    motEl.style.display = 'flex';
+    motEl.className = 'motivation-box mittel';
+    motEl.innerHTML = '<span class="motivation-icon">📈</span><span><strong>Im grünen Bereich.</strong> Mit weiteren Daten kann BackKI gezielte Empfehlungen geben.</span>';
+  } else {
+    motEl.style.display = 'flex';
+    motEl.className = 'motivation-box schlecht';
+    motEl.innerHTML = '<span class="motivation-icon">⚠️</span><span><strong>Hohe Retourenquote heute.</strong> BackKI merkt sich das — nach 7 Tagen folgt eine erste Empfehlung.</span>';
+  }
+}
+
+function alleNull() {
+  PRODUKTE.forEach(function(p) {
+    retouren[p.name] = 0;
+    var id = p.name.replace(/\s/g,'_');
+    var input = document.getElementById('val-' + id);
+    if (input) input.value = 0;
+    updateZeile(p.name);
+  });
+  updateTotals();
+}
+
+function speichern() {
+  var gesamt = 0;
+  PRODUKTE.forEach(function(p) { gesamt += retouren[p.name] * p.preis; });
+
+  document.getElementById('modal-verlust').textContent = gesamt.toFixed(2).replace('.',',') + ' €';
+
+  var msg = '';
+  if (gesamt === 0) msg = 'Kein einziges Produkt übrig — das ist ein perfekter Tag. 🏆';
+  else if (gesamt < 20) msg = 'Unter 20 € Verlust — das ist ein guter Tag für Ihre Bäckerei.';
+  else msg = 'BackKI lernt aus diesem Tag. Nach 7 Tagen folgt die erste Empfehlung.';
+  document.getElementById('modal-msg').textContent = msg;
+
+  document.getElementById('success-overlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('success-overlay').classList.remove('show');
+}
+
+// ── INIT ──
+renderWoche();
+renderErfassung();
+</script>
+</body>
+</html>
