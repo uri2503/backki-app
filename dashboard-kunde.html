@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BackKI – Mein Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:     #1A120A;
+  --crust:   #B8722A;
+  --crust-l: #D4903E;
+  --dough:   #F9F3E8;
+  --cream:   #FDFAF4;
+  --smoke:   #7A6A58;
+  --border:  #E4D8C4;
+  --green:   #2B6845;
+  --green-l: #EBF5EF;
+  --red:     #A82820;
+  --red-l:   #FDECEA;
+  --yellow:  #B8860B;
+  --yellow-l:#FEF9E7;
+  --white:   #FFFFFF;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--dough);
+  color: var(--ink);
+  font-size: 15px;
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  background: rgba(26,18,10,0.97);
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+}
+.nav-logo { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 900; color: #fff; }
+.nav-logo em { color: var(--crust); font-style: normal; }
+.nav-links { margin-left: auto; display: flex; gap: 6px; }
+.nav-link {
+  font-size: 12px; font-weight: 600;
+  padding: 6px 14px; border-radius: 20px;
+  text-decoration: none; cursor: pointer; border: none;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+}
+.nav-link.active { background: var(--crust); color: white; }
+.nav-link.inactive { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+.nav-link.inactive:hover { background: rgba(255,255,255,0.15); color: white; }
+
+/* CONTAINER */
+.container { max-width: 700px; margin: 0 auto; padding: 28px 20px 80px; }
+
+/* BEGRÜSSUNG */
+.begruessing {
+  margin-bottom: 24px;
+}
+.begruessing-eyebrow {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--crust); margin-bottom: 4px;
+}
+.begruessing-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(22px, 4vw, 32px); font-weight: 900;
+  color: var(--ink); line-height: 1.1;
+}
+.begruessing-sub { font-size: 13px; color: var(--smoke); margin-top: 4px; }
+
+/* HERO KARTEN ROW */
+.hero-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.hero-card {
+  flex: 1; border-radius: 14px; padding: 18px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.hero-card.dark { background: var(--ink); }
+.hero-card.light { background: var(--white); border: 1.5px solid var(--border); }
+.hero-card.green { background: var(--green-l); border: 1.5px solid #B8E0C8; }
+.hero-label {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.dark .hero-label { color: rgba(255,255,255,0.35); }
+.light .hero-label, .green .hero-label { color: var(--smoke); }
+.hero-val {
+  font-family: 'Fraunces', serif;
+  font-size: 28px; font-weight: 900; line-height: 1;
+}
+.dark .hero-val { color: var(--crust-l); }
+.light .hero-val { color: var(--ink); }
+.green .hero-val { color: var(--green); }
+.hero-sub { font-size: 11px; }
+.dark .hero-sub { color: rgba(255,255,255,0.3); }
+.light .hero-sub { color: var(--smoke); }
+.green .hero-sub { color: var(--green); opacity: 0.7; }
+
+/* CTA BANNER */
+.cta-banner {
+  background: var(--crust);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+.cta-banner:hover { background: var(--crust-l); }
+.cta-banner-icon { font-size: 28px; flex-shrink: 0; }
+.cta-banner-text { flex: 1; }
+.cta-banner-title { font-size: 15px; font-weight: 700; color: white; }
+.cta-banner-sub { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+.cta-banner-arrow { font-size: 20px; color: rgba(255,255,255,0.6); }
+
+/* SECTION HEADER */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; margin-top: 24px;
+}
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 17px; font-weight: 700; color: var(--ink);
+}
+.section-link {
+  font-size: 12px; color: var(--crust); font-weight: 600;
+  text-decoration: none; cursor: pointer;
+}
+
+/* WOCHENVERLAUF */
+.woche-chart {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 8px;
+}
+.woche-bars {
+  display: flex; align-items: flex-end; gap: 8px;
+  height: 100px; margin-bottom: 10px;
+}
+.woche-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.woche-bar-val { font-size: 10px; font-weight: 600; color: var(--smoke); }
+.woche-bar {
+  width: 100%; border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease;
+  min-height: 4px;
+}
+.bar-gut { background: var(--green); }
+.bar-mittel { background: var(--yellow); }
+.bar-schlecht { background: var(--red); }
+.bar-heute { background: var(--crust); }
+.bar-leer { background: var(--border); }
+.woche-bar-tag { font-size: 10px; color: var(--smoke); text-align: center; }
+.woche-bar-tag.heute { color: var(--crust); font-weight: 700; }
+
+.woche-summary {
+  display: flex; justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+.ws-item { text-align: center; }
+.ws-val { font-weight: 700; color: var(--ink); font-size: 14px; }
+.ws-label { color: var(--smoke); margin-top: 2px; }
+
+/* EMPFEHLUNGEN */
+.empfehlung-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.empfehlung-card.prio-hoch { border-left: 4px solid var(--red); }
+.empfehlung-card.prio-mittel { border-left: 4px solid var(--yellow); }
+.empfehlung-card.prio-info { border-left: 4px solid var(--crust); }
+.empfehlung-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+.empfehlung-body { flex: 1; }
+.empfehlung-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.empfehlung-text { font-size: 12px; color: var(--smoke); line-height: 1.6; }
+.empfehlung-badge {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px;
+  text-transform: uppercase; letter-spacing: 1px;
+  display: inline-block; margin-top: 6px;
+}
+.badge-hoch { background: var(--red-l); color: var(--red); }
+.badge-mittel { background: var(--yellow-l); color: var(--yellow); }
+.badge-info { background: #FEF0E0; color: var(--crust); }
+
+/* KI STATUS */
+.ki-status {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+}
+.ki-progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--smoke);
+  margin-bottom: 8px;
+}
+.ki-progress-bar {
+  height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+  margin-bottom: 8px;
+}
+.ki-progress-fill {
+  height: 100%; background: var(--crust); border-radius: 4px;
+  transition: width 0.6s ease;
+}
+.ki-progress-hint { font-size: 11px; color: var(--smoke); }
+
+/* SORTIMENT MINI */
+.sortiment-mini {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.sortiment-row {
+  display: flex; align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  font-size: 13px;
+}
+.sortiment-row:last-child { border-bottom: none; }
+.sortiment-kat { color: var(--smoke); font-size: 11px; min-width: 80px; }
+.sortiment-name { flex: 1; font-weight: 500; color: var(--ink); }
+.sortiment-preis { color: var(--smoke); font-size: 12px; }
+.sortiment-trend {
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 10px;
+}
+.trend-hoch { background: var(--red-l); color: var(--red); }
+.trend-ok { background: var(--green-l); color: var(--green); }
+.trend-neu { background: #FEF0E0; color: var(--crust); }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(26,18,10,0.97);
+  display: flex;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  z-index: 100;
+}
+.bn-item {
+  flex: 1; padding: 10px 4px 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; text-decoration: none;
+  transition: opacity 0.2s;
+}
+.bn-icon { font-size: 20px; }
+.bn-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.bn-item.active .bn-label { color: var(--crust); }
+.bn-item.inactive .bn-label { color: rgba(255,255,255,0.3); }
+.bn-item.inactive .bn-icon { opacity: 0.35; }
+
+@media (max-width: 480px) {
+  .hero-row { flex-direction: column; }
+  .container { padding: 20px 14px 80px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Back<em>KI</em></div>
+  <div class="nav-links">
+    <span class="nav-link active">Dashboard</span>
+    <a class="nav-link inactive" href="index.html">Erfassung</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- BEGRÜSSUNG -->
+  <div class="begruessing">
+    <div class="begruessing-eyebrow" id="bg-datum"></div>
+    <h1 class="begruessing-title">Guten Morgen,<br>Bäckerei Müller.</h1>
+    <p class="begruessing-sub">Sie sind seit <strong>5 Tagen</strong> dabei — BackKI lernt täglich dazu. 🔥</p>
+  </div>
+
+  <!-- HERO KARTEN -->
+  <div class="hero-row">
+    <div class="hero-card dark">
+      <div class="hero-label">Verlust gestern</div>
+      <div class="hero-val">22,80 €</div>
+      <div class="hero-sub">↓ 4,20 € besser als Montag</div>
+    </div>
+    <div class="hero-card light">
+      <div class="hero-label">Diese Woche</div>
+      <div class="hero-val">75,00 €</div>
+      <div class="hero-sub">4 Tage erfasst</div>
+    </div>
+    <div class="hero-card green">
+      <div class="hero-label">Streak</div>
+      <div class="hero-val">5 🔥</div>
+      <div class="hero-sub">Tage in Folge</div>
+    </div>
+  </div>
+
+  <!-- CTA BANNER -->
+  <a class="cta-banner" href="index.html">
+    <span class="cta-banner-icon">📋</span>
+    <div class="cta-banner-text">
+      <div class="cta-banner-title">Heute noch nicht erfasst</div>
+      <div class="cta-banner-sub">30 Sekunden — Retouren von heute eintragen</div>
+    </div>
+    <span class="cta-banner-arrow">→</span>
+  </a>
+
+  <!-- WOCHENVERLAUF -->
+  <div class="section-header">
+    <div class="section-title">Wochenverlauf</div>
+    <span class="section-link">Alle Daten →</span>
+  </div>
+  <div class="woche-chart">
+    <div class="woche-bars" id="woche-bars"></div>
+    <div class="woche-summary">
+      <div class="ws-item">
+        <div class="ws-val">75,00 €</div>
+        <div class="ws-label">Woche gesamt</div>
+      </div>
+      <div class="ws-item">
+        <div class="ws-val">18,75 €</div>
+        <div class="ws-label">Ø pro Tag</div>
+      </div>
+      <div class="ws-item">
+        <div class="ws-val">8,2 %</div>
+        <div class="ws-label">Ø Retourenquote</div>
+      </div>
+      <div class="ws-item">
+        <div class="ws-val" style="color:var(--green)">− 12 %</div>
+        <div class="ws-label">vs. Vorwoche</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KI LERNSTATUS -->
+  <div class="section-header">
+    <div class="section-title">BackKI Lernfortschritt</div>
+  </div>
+  <div class="ki-status">
+    <div class="ki-progress-label">
+      <span>5 von 28 Tagen für erste Empfehlungen</span>
+      <span style="font-weight:700;color:var(--crust)">18 %</span>
+    </div>
+    <div class="ki-progress-bar">
+      <div class="ki-progress-fill" style="width:18%"></div>
+    </div>
+    <div class="ki-progress-hint">💡 Nach 7 Tagen: erste Mustererkennung · Nach 28 Tagen: vollständige KI-Empfehlungen</div>
+  </div>
+
+  <!-- EMPFEHLUNGEN -->
+  <div class="section-header">
+    <div class="section-title">KI-Empfehlungen</div>
+    <span class="section-link" style="color:var(--smoke)">Noch 2 Tage</span>
+  </div>
+
+  <div class="empfehlung-card prio-info">
+    <span class="empfehlung-icon">⏳</span>
+    <div class="empfehlung-body">
+      <div class="empfehlung-title">Noch zu wenig Daten</div>
+      <div class="empfehlung-text">BackKI braucht mindestens 7 Tage um verlässliche Muster zu erkennen. Erfassen Sie täglich Ihre Retouren — in 2 Tagen folgt die erste Analyse.</div>
+      <span class="empfehlung-badge badge-info">In 2 Tagen verfügbar</span>
+    </div>
+  </div>
+
+  <!-- VORSCHAU EMPFEHLUNG (ausgegraut) -->
+  <div class="empfehlung-card prio-hoch" style="opacity:0.4;pointer-events:none;">
+    <span class="empfehlung-icon">🥐</span>
+    <div class="empfehlung-body">
+      <div class="empfehlung-title">Berliner: Produktion reduzieren</div>
+      <div class="empfehlung-text">Wird freigeschaltet nach 7 Tagen Erfassung.</div>
+      <span class="empfehlung-badge badge-hoch">Hohe Priorität</span>
+    </div>
+  </div>
+
+  <div class="empfehlung-card prio-mittel" style="opacity:0.4;pointer-events:none;">
+    <span class="empfehlung-icon">🍞</span>
+    <div class="empfehlung-body">
+      <div class="empfehlung-title">Roggenbrot: Freitag anpassen</div>
+      <div class="empfehlung-text">Wird freigeschaltet nach 7 Tagen Erfassung.</div>
+      <span class="empfehlung-badge badge-mittel">Mittlere Priorität</span>
+    </div>
+  </div>
+
+  <!-- SORTIMENT -->
+  <div class="section-header">
+    <div class="section-title">Mein Sortiment</div>
+    <a class="section-link" href="backki-onboarding-typ1.html">Bearbeiten →</a>
+  </div>
+  <div class="sortiment-mini">
+    <div class="sortiment-row">
+      <span class="sortiment-kat">Brot</span>
+      <span class="sortiment-name">Roggenbrot</span>
+      <span class="sortiment-preis">3,20 €</span>
+      <span class="sortiment-trend trend-hoch">↑ Hoch</span>
+    </div>
+    <div class="sortiment-row">
+      <span class="sortiment-kat">Brötchen</span>
+      <span class="sortiment-name">Semmel</span>
+      <span class="sortiment-preis">0,40 €</span>
+      <span class="sortiment-trend trend-ok">✓ OK</span>
+    </div>
+    <div class="sortiment-row">
+      <span class="sortiment-kat">Süße Stückle</span>
+      <span class="sortiment-name">Berliner</span>
+      <span class="sortiment-preis">0,90 €</span>
+      <span class="sortiment-trend trend-hoch">↑ Hoch</span>
+    </div>
+    <div class="sortiment-row">
+      <span class="sortiment-kat">Brezel</span>
+      <span class="sortiment-name">Laugenbrezel</span>
+      <span class="sortiment-preis">0,75 €</span>
+      <span class="sortiment-trend trend-ok">✓ OK</span>
+    </div>
+    <div class="sortiment-row">
+      <span class="sortiment-kat">Kuchen</span>
+      <span class="sortiment-name">Käsekuchen</span>
+      <span class="sortiment-preis">2,80 €</span>
+      <span class="sortiment-trend trend-neu">Neu</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <a class="bn-item active" href="dashboard-kunde.html">
+    <span class="bn-icon">📊</span>
+    <span class="bn-label">Dashboard</span>
+  </a>
+  <a class="bn-item inactive" href="index.html">
+    <span class="bn-icon">✏️</span>
+    <span class="bn-label">Erfassung</span>
+  </a>
+  <a class="bn-item inactive" href="backki-onboarding-typ1.html">
+    <span class="bn-icon">🛒</span>
+    <span class="bn-label">Sortiment</span>
+  </a>
+  <a class="bn-item inactive" href="#">
+    <span class="bn-icon">💡</span>
+    <span class="bn-label">Empfehlungen</span>
+  </a>
+</div>
+
+<script>
+// Datum
+var d = new Date();
+var tage = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+var monate = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+document.getElementById('bg-datum').textContent = tage[d.getDay()] + ', ' + d.getDate() + '. ' + monate[d.getMonth()] + ' ' + d.getFullYear();
+
+// Wochenbalken
+var wocheDaten = [
+  { tag:'Mo', verlust:27.00, heute:false },
+  { tag:'Di', verlust:22.80, heute:false },
+  { tag:'Mi', verlust:14.20, heute:false },
+  { tag:'Do', verlust:11.00, heute:false },
+  { tag:'Fr', verlust:null,  heute:true  },
+  { tag:'Sa', verlust:null,  heute:false },
+  { tag:'So', verlust:null,  heute:false },
+];
+var maxVerlust = Math.max.apply(null, wocheDaten.map(function(w){ return w.verlust || 0; }));
+
+var barsEl = document.getElementById('woche-bars');
+wocheDaten.forEach(function(w) {
+  var hoehe = w.verlust ? Math.round(w.verlust / maxVerlust * 80) : 0;
+  var barClass = w.heute ? 'bar-heute' : !w.verlust ? 'bar-leer' :
+    w.verlust < 15 ? 'bar-gut' : w.verlust < 25 ? 'bar-mittel' : 'bar-schlecht';
+
+  var div = document.createElement('div');
+  div.className = 'woche-bar-wrap';
+  div.innerHTML =
+    '<div class="woche-bar-val">' + (w.verlust ? w.verlust.toFixed(0)+'€' : '') + '</div>' +
+    '<div class="woche-bar ' + barClass + '" style="height:' + (w.heute ? 20 : hoehe) + 'px"></div>' +
+    '<div class="woche-bar-tag' + (w.heute ? ' heute' : '') + '">' + w.tag + (w.heute ? ' ●' : '') + '</div>';
+  barsEl.appendChild(div);
+});
+</script>
+</body>
+</html>
