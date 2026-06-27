@@ -6,379 +6,178 @@
 <title>BackKI – Meine Bäckerei</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap');
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --ink:     #1A120A;
-  --crust:   #B8722A;
-  --crust-l: #D4903E;
-  --dough:   #F9F3E8;
-  --cream:   #FDFAF4;
-  --smoke:   #7A6A58;
-  --border:  #E4D8C4;
-  --green:   #2B6845;
-  --green-l: #EBF5EF;
-  --red:     #A82820;
-  --white:   #FFFFFF;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1A120A;--crust:#B8722A;--crust-l:#D4903E;
+  --dough:#F9F3E8;--cream:#FDFAF4;--smoke:#7A6A58;
+  --border:#E4D8C4;--green:#2B6845;--green-l:#EBF5EF;
+  --red:#A82820;--white:#FFFFFF;
 }
-
-html, body {
-  height: 100%;
-  font-family: 'Inter', sans-serif;
-  background: var(--dough);
-  color: var(--ink);
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* NAV */
-nav {
-  background: rgba(26,18,10,0.97);
-  padding: 0 20px;
-  height: 56px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
-.nav-logo {
-  font-family: 'Fraunces', serif;
-  font-size: 20px; font-weight: 900; color: #fff;
-}
-.nav-logo em { color: var(--crust); font-style: normal; }
-.nav-user {
-  font-size: 12px; color: rgba(255,255,255,0.45);
-  font-weight: 500;
-}
-
-/* MAIN */
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 24px 20px 32px;
-  max-width: 480px;
-  margin: 0 auto;
-  width: 100%;
-  gap: 28px;
-}
-
-/* BEGRÜSSUNG */
-.greeting {
-  display: flex; flex-direction: column; gap: 4px;
-}
-.greeting-time {
-  font-size: 11px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 2px;
-  color: var(--crust);
-}
-.greeting-name {
-  font-family: 'Fraunces', serif;
-  font-size: 26px; font-weight: 900;
-  color: var(--ink); line-height: 1.1;
-}
-.greeting-sub {
-  font-size: 13px; color: var(--smoke);
-  margin-top: 2px;
-}
-
-/* 4 BUTTONS */
-.nav-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.nav-btn {
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
-  padding: 20px 16px;
-  display: flex; flex-direction: column;
-  align-items: flex-start; gap: 10px;
-  text-decoration: none; color: inherit;
-  cursor: pointer;
-  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
-  position: relative;
-}
-.nav-btn:hover, .nav-btn:active {
-  border-color: var(--crust);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(184,114,42,0.12);
-}
-.nav-btn.primary {
-  background: var(--ink);
-  border-color: var(--ink);
-}
-.nav-btn.primary:hover {
-  border-color: var(--crust);
-  box-shadow: 0 6px 20px rgba(26,18,10,0.25);
-}
-.nav-btn.soon {
-  opacity: 0.55;
-  cursor: default;
-}
-.nav-btn.soon:hover {
-  transform: none;
-  box-shadow: none;
-  border-color: var(--border);
-}
-
-.btn-icon { font-size: 24px; line-height: 1; }
-.btn-label {
-  font-size: 13px; font-weight: 700;
-  color: var(--ink); line-height: 1.2;
-}
-.nav-btn.primary .btn-label { color: #fff; }
-
-.btn-sub {
-  font-size: 11px; color: var(--smoke);
-  line-height: 1.4;
-}
-.nav-btn.primary .btn-sub { color: rgba(255,255,255,0.45); }
-
-.soon-badge {
-  position: absolute; top: 10px; right: 10px;
-  font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  background: var(--border); color: var(--smoke);
-  padding: 2px 6px; border-radius: 10px;
-}
-
-/* MINI DASHBOARD */
-.mini-dash {
-  background: var(--ink);
-  border-radius: 16px;
-  padding: 20px;
-}
-.mini-dash-title {
-  font-size: 10px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 2px;
-  color: rgba(255,255,255,0.3);
-  margin-bottom: 16px;
-}
-.mini-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-}
-.mini-stat {
-  display: flex; flex-direction: column; gap: 4px;
-  padding: 0 16px;
-  border-right: 1px solid rgba(255,255,255,0.08);
-}
-.mini-stat:first-child { padding-left: 0; }
-.mini-stat:last-child { padding-right: 0; border-right: none; }
-
-.mini-stat-val {
-  font-family: 'Fraunces', serif;
-  font-size: 22px; font-weight: 900;
-  line-height: 1;
-}
-.mini-stat-val.streak { color: var(--crust-l); }
-.mini-stat-val.red    { color: #F87171; }
-.mini-stat-val.week   { color: rgba(255,255,255,0.7); }
-
-.progress-wrap {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-}
-.progress-top {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 6px;
-}
-.progress-label {
-  font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 500;
-}
-.progress-pct {
-  font-size: 11px; font-weight: 700; color: var(--crust-l);
-}
-.progress-bar {
-  height: 6px; background: rgba(255,255,255,0.08);
-  border-radius: 3px; overflow: hidden; margin-bottom: 6px;
-}
-.progress-fill {
-  height: 100%; background: var(--crust);
-  border-radius: 3px; transition: width 0.6s ease;
-}
-.progress-hint {
-  font-size: 11px; color: rgba(255,255,255,0.3); line-height: 1.4;
-}
-.mini-stat-label {
-  font-size: 10px; color: rgba(255,255,255,0.3);
-  font-weight: 500; line-height: 1.3;
-}
-
-/* LEER-ZUSTAND */
-.empty-hint {
-  background: var(--white);
-  border: 1.5px dashed var(--border);
-  border-radius: 12px;
-  padding: 16px 20px;
-  display: flex; align-items: center; gap: 12px;
-}
-.empty-hint-icon { font-size: 20px; flex-shrink: 0; }
-.empty-hint-text { font-size: 13px; color: var(--smoke); line-height: 1.5; }
-.empty-hint-text strong { color: var(--ink); font-weight: 600; }
-
-/* LETZTER EINTRAG */
-.last-entry {
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 16px;
-  display: flex; align-items: center; gap: 12px;
-}
-.last-entry-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--green); flex-shrink: 0;
-}
-.last-entry-text { flex: 1; font-size: 13px; color: var(--smoke); }
-.last-entry-text strong { color: var(--ink); }
-.last-entry-val {
-  font-family: 'Fraunces', serif;
-  font-size: 18px; font-weight: 900;
-  color: var(--crust);
-}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--dough);color:var(--ink);}
+body{display:flex;flex-direction:column;min-height:100vh;}
+nav{background:rgba(26,18,10,0.97);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.nav-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:#fff;}
+.nav-logo em{color:var(--crust);font-style:normal;}
+.nav-user{font-size:12px;color:rgba(255,255,255,0.45);font-weight:500;}
+main{flex:1;display:flex;flex-direction:column;padding:24px 20px 32px;max-width:480px;margin:0 auto;width:100%;gap:28px;}
+.greeting{display:flex;flex-direction:column;gap:4px;}
+.greeting-time{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--crust);}
+.greeting-name{font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--ink);line-height:1.1;}
+.greeting-sub{font-size:13px;color:var(--smoke);margin-top:2px;}
+.nav-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.nav-btn{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:20px 16px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-decoration:none;color:inherit;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;position:relative;}
+.nav-btn:hover,.nav-btn:active{border-color:var(--crust);transform:translateY(-2px);box-shadow:0 6px 20px rgba(184,114,42,.12);}
+.nav-btn.primary{background:var(--ink);border-color:var(--ink);}
+.nav-btn.primary:hover{border-color:var(--crust);box-shadow:0 6px 20px rgba(26,18,10,.25);}
+.nav-btn.soon{opacity:.55;cursor:default;}
+.nav-btn.soon:hover{transform:none;box-shadow:none;border-color:var(--border);}
+.btn-icon{font-size:24px;line-height:1;}
+.btn-label{font-size:13px;font-weight:700;color:var(--ink);line-height:1.2;}
+.nav-btn.primary .btn-label{color:#fff;}
+.btn-sub{font-size:11px;color:var(--smoke);line-height:1.4;}
+.nav-btn.primary .btn-sub{color:rgba(255,255,255,.45);}
+.soon-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:var(--border);color:var(--smoke);padding:2px 6px;border-radius:10px;}
+.mini-dash{background:var(--ink);border-radius:16px;padding:20px;}
+.mini-dash-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:16px;}
+.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.mini-stat{display:flex;flex-direction:column;gap:4px;padding:0 16px;border-right:1px solid rgba(255,255,255,.08);}
+.mini-stat:first-child{padding-left:0;}
+.mini-stat:last-child{padding-right:0;border-right:none;}
+.mini-stat-val{font-family:'Fraunces',serif;font-size:22px;font-weight:900;line-height:1;}
+.mini-stat-val.red{color:#F87171;}
+.mini-stat-val.week{color:rgba(255,255,255,.7);}
+.mini-stat-label{font-size:10px;color:rgba(255,255,255,.3);font-weight:500;line-height:1.3;}
+.progress-wrap{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.progress-label{font-size:11px;color:rgba(255,255,255,.45);font-weight:500;}
+.progress-pct{font-size:11px;font-weight:700;color:var(--crust-l);}
+.progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.progress-fill{height:100%;background:var(--crust);border-radius:3px;transition:width .6s ease;}
+.progress-hint{font-size:11px;color:rgba(255,255,255,.3);line-height:1.4;}
+.empty-hint{background:var(--white);border:1.5px dashed var(--border);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:12px;}
+.empty-hint-icon{font-size:20px;flex-shrink:0;}
+.empty-hint-text{font-size:13px;color:var(--smoke);line-height:1.5;}
+.empty-hint-text strong{color:var(--ink);font-weight:600;}
+.last-entry{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.last-entry-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.last-entry-text{flex:1;font-size:13px;color:var(--smoke);}
+.last-entry-text strong{color:var(--ink);}
+.last-entry-val{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--crust);}
 </style>
 </head>
 <body>
-
 <nav>
   <div class="nav-logo">Back<em>KI</em></div>
-  <div class="nav-user" id="nav-user">Bäckerei Müller</div>
+  <div class="nav-user" id="nav-user">Meine Bäckerei</div>
 </nav>
-
 <main>
-
-  <!-- BEGRÜSSUNG -->
   <div class="greeting">
     <div class="greeting-time" id="greeting-time">Guten Morgen</div>
-    <div class="greeting-name" id="greeting-name">Bäckerei Müller.</div>
+    <div class="greeting-name" id="greeting-name">Meine Bäckerei.</div>
     <div class="greeting-sub">Was möchten Sie heute tun?</div>
   </div>
-
-  <!-- 4 BUTTONS -->
   <div class="nav-grid">
-
     <a href="tageserfassung.html" class="nav-btn primary">
       <span class="btn-icon">✏️</span>
-      <div>
-        <div class="btn-label">Tages&shy;erfassung</div>
-        <div class="btn-sub">Retouren von heute eingeben</div>
-      </div>
+      <div><div class="btn-label">Tages&shy;erfassung</div><div class="btn-sub">Retouren von heute eingeben</div></div>
     </a>
-
     <a href="backki-onboarding-typ1.html" class="nav-btn">
       <span class="btn-icon">📋</span>
-      <div>
-        <div class="btn-label">Mein Sortiment</div>
-        <div class="btn-sub">Produkte & Preise verwalten</div>
-      </div>
+      <div><div class="btn-label">Mein Sortiment</div><div class="btn-sub">Produkte &amp; Preise verwalten</div></div>
     </a>
-
     <div class="nav-btn soon">
       <span class="soon-badge">Bald</span>
       <span class="btn-icon">📊</span>
-      <div>
-        <div class="btn-label">Auswertung</div>
-        <div class="btn-sub">Verfügbar nach 7 Tagen</div>
-      </div>
+      <div><div class="btn-label">Auswertung</div><div class="btn-sub">Verfügbar nach 7 Tagen</div></div>
     </div>
-
     <div class="nav-btn soon">
       <span class="soon-badge">Bald</span>
       <span class="btn-icon">💡</span>
-      <div>
-        <div class="btn-label">Empfehlungen</div>
-        <div class="btn-sub">Verfügbar nach 28 Tagen</div>
-      </div>
+      <div><div class="btn-label">Empfehlungen</div><div class="btn-sub">Verfügbar nach 28 Tagen</div></div>
     </div>
-
   </div>
-
-  <!-- MINI DASHBOARD -->
   <div class="mini-dash">
     <div class="mini-dash-title">Meine Zahlen</div>
     <div class="mini-stats">
       <div class="mini-stat">
-        <div class="mini-stat-val red" id="stat-gestern">22,80 €</div>
+        <div class="mini-stat-val red" id="stat-gestern">—</div>
         <div class="mini-stat-label">Verlust gestern</div>
       </div>
-      <div class="mini-stat last">
-        <div class="mini-stat-val week" id="stat-woche">75 €</div>
+      <div class="mini-stat">
+        <div class="mini-stat-val week" id="stat-woche">—</div>
         <div class="mini-stat-label">Diese Woche</div>
       </div>
     </div>
     <div class="progress-wrap">
       <div class="progress-top">
-        <span class="progress-label" id="progress-label">5 von 28 Tagen — BackKI wird präziser</span>
-        <span class="progress-pct" id="progress-pct">18%</span>
+        <span class="progress-label" id="progress-label">0 von 28 Tagen</span>
+        <span class="progress-pct" id="progress-pct">0%</span>
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill" style="width:18%"></div>
-      </div>
-      <div class="progress-hint" id="progress-hint">BackKI lernt Ihr Sortiment kennen. Weiter so!</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-hint" id="progress-hint">Laden…</div>
     </div>
   </div>
-
-  <!-- LETZTER EINTRAG / LEER -->
   <div class="last-entry" id="last-entry">
     <div class="last-entry-dot"></div>
-    <div class="last-entry-text">Letzter Eintrag: <strong>Gestern, 19:42 Uhr</strong></div>
-    <div class="last-entry-val">22,80 €</div>
+    <div class="last-entry-text"><strong>Laden…</strong></div>
   </div>
-
 </main>
-
 <script>
-// Tageszeit-Begrüßung
-function getGreeting() {
-  var h = new Date().getHours();
-  if (h < 11) return 'Guten Morgen';
-  if (h < 14) return 'Guten Mittag';
-  if (h < 18) return 'Guten Nachmittag';
-  return 'Guten Abend';
+var SB_URL='https://ysqzdqazcgyuzdorauiq.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+function sbFetch(path,opts){return fetch(SB_URL+'/rest/v1/'+path,Object.assign({headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}},opts||{}));}
+function fmt(n){return n.toFixed(2).replace('.',',')+' €';}
+function getGreeting(){var h=new Date().getHours();return h<11?'Guten Morgen':h<14?'Guten Mittag':h<18?'Guten Nachmittag':'Guten Abend';}
+document.getElementById('greeting-time').textContent=getGreeting();
+
+async function laden(){
+  var bid=localStorage.getItem('backki_baeckerei_id');
+  var name=localStorage.getItem('backki_baeckerei_name')||'Meine Bäckerei';
+  document.getElementById('nav-user').textContent=name;
+  document.getElementById('greeting-name').textContent=name+'.';
+  if(!bid){leer();return;}
+  try{
+    var seit=new Date();seit.setDate(seit.getDate()-35);
+    var res=await sbFetch('backki_tageseintraege?baeckerei_id=eq.'+bid+'&datum=gte.'+seit.toISOString().slice(0,10)+'&select=datum,verlust_eur&order=datum.desc');
+    var rows=await res.json();
+    if(!rows||!rows.length){leer();return;}
+    var map={};
+    rows.forEach(function(r){if(!map[r.datum])map[r.datum]=0;map[r.datum]+=parseFloat(r.verlust_eur);});
+    var tage=Object.keys(map).sort().reverse();
+    // Gestern
+    var g=new Date();g.setDate(g.getDate()-1);var gs=g.toISOString().slice(0,10);
+    document.getElementById('stat-gestern').textContent=fmt(map[gs]||0);
+    // Woche
+    var h=new Date();var wb=new Date(h);wb.setDate(h.getDate()-h.getDay()+1);
+    var wbs=wb.toISOString().slice(0,10);var sw=0;
+    tage.forEach(function(d){if(d>=wbs)sw+=map[d];});
+    document.getElementById('stat-woche').textContent=fmt(sw);
+    // Fortschritt
+    var n=tage.length,ziel=28,pct=Math.min(Math.round(n/ziel*100),100);
+    document.getElementById('progress-fill').style.width=pct+'%';
+    document.getElementById('progress-pct').textContent=pct+'%';
+    document.getElementById('progress-label').textContent=n+' von '+ziel+' Tagen — BackKI wird präziser';
+    document.getElementById('progress-hint').textContent=n<7?'BackKI lernt Ihr Sortiment kennen. Weiter so!':n<14?'Erste Muster erkannt — noch '+(14-n)+' Tage bis zur Auswertung.':n<28?'Fast da — noch '+(ziel-n)+' Tage bis zur KI-Empfehlung.':'✅ BackKI ist vollständig kalibriert!';
+    // Letzter Eintrag
+    var lt=tage[0];var d=new Date(lt+'T12:00:00');
+    var tn=['So','Mo','Di','Mi','Do','Fr','Sa'];
+    document.getElementById('last-entry').innerHTML=
+      '<div class="last-entry-dot"></div>'+
+      '<div class="last-entry-text">Letzter Eintrag: <strong>'+tn[d.getDay()]+', '+d.getDate()+'.'+(d.getMonth()+1)+'.</strong></div>'+
+      '<div class="last-entry-val">'+fmt(map[lt])+'</div>';
+  }catch(e){leer();}
 }
-document.getElementById('greeting-time').textContent = getGreeting();
-
-// Fortschrittsbalken berechnen
-var tage = 5; // Demo — später aus Supabase
-var ziel = 28;
-var pct  = Math.min(Math.round(tage / ziel * 100), 100);
-
-document.getElementById('progress-fill').style.width = pct + '%';
-document.getElementById('progress-pct').textContent = pct + '%';
-document.getElementById('progress-label').textContent = tage + ' von ' + ziel + ' Tagen — BackKI wird präziser';
-
-var hint = '';
-if (tage < 7)       hint = 'BackKI lernt Ihr Sortiment kennen. Weiter so!';
-else if (tage < 14) hint = 'Erste Muster erkannt — noch ' + (14 - tage) + ' Tage bis zur ersten Auswertung.';
-else if (tage < 28) hint = 'Fast da — noch ' + (ziel - tage) + ' Tage bis zur ersten KI-Empfehlung.';
-else                hint = '✅ BackKI ist vollständig kalibriert. Ihre Empfehlungen sind aktiv!';
-document.getElementById('progress-hint').textContent = hint;
-
-// TODO: Supabase-Daten laden
-// Wenn keine Daten vorhanden → Leer-Zustand zeigen
-var hatDaten = true; // Demo: true
-
-if (!hatDaten) {
-  document.getElementById('stat-streak').textContent = '—';
-  document.getElementById('stat-gestern').textContent = '—';
-  document.getElementById('stat-woche').textContent = '—';
-
-  var lastEntry = document.getElementById('last-entry');
-  lastEntry.innerHTML =
-    '<span class="empty-hint-icon">👋</span>' +
-    '<div class="empty-hint-text"><strong>Noch keine Einträge.</strong><br>' +
-    'Starten Sie mit der ersten Tageserfassung.</div>';
-  lastEntry.className = 'empty-hint';
+function leer(){
+  document.getElementById('stat-gestern').textContent='—';
+  document.getElementById('stat-woche').textContent='—';
+  document.getElementById('progress-fill').style.width='0%';
+  document.getElementById('progress-pct').textContent='0%';
+  document.getElementById('progress-label').textContent='0 von 28 Tagen';
+  document.getElementById('progress-hint').textContent='Starten Sie mit der ersten Tageserfassung.';
+  document.getElementById('last-entry').innerHTML='<span class="empty-hint-icon">👋</span><div class="empty-hint-text"><strong>Noch keine Einträge.</strong><br>Starten Sie mit der ersten Tageserfassung.</div>';
+  document.getElementById('last-entry').className='empty-hint';
 }
+laden();
 </script>
-
 </body>
 </html>
