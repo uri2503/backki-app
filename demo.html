@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BackKI – Demo wird geladen…</title>
+<style>
+body{font-family:'Inter',sans-serif;background:#1A120A;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
+.wrap{text-align:center;color:#fff;}
+.logo{font-family:Georgia,serif;font-size:28px;font-weight:900;margin-bottom:16px;}
+.logo em{color:#B8722A;font-style:normal;}
+.text{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:24px;}
+.spinner{width:32px;height:32px;border:3px solid rgba(184,114,42,.3);border-top-color:#B8722A;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Back<em>KI</em></div>
+  <div class="text">Demo wird vorbereitet…</div>
+  <div class="spinner"></div>
+</div>
+<script>
+// Demo-Bäckerei in localStorage setzen
+var DEMO_BID  = 'demo-baeckerei-0001';
+var DEMO_NAME = 'Bäckerei Hunn (Demo)';
+
+localStorage.setItem('backki_baeckerei_id',    DEMO_BID);
+localStorage.setItem('backki_baeckerei_name',  DEMO_NAME);
+localStorage.setItem('backki_retouren_quote',  '15');
+localStorage.setItem('backki_wareneinsatz',    '35');
+localStorage.setItem('backki_tour_done',       ''); // Tour zeigen
+
+// Demo-Daten in Supabase anlegen falls noch nicht vorhanden
+var SB_URL='https://ysqzdqazcgyuzdorauiq.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+
+function h(){return{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};}
+
+// Prüfen ob Demo-Bäckerei schon existiert
+fetch(SB_URL+'/rest/v1/backki_baeckereien?id=eq.'+DEMO_BID, {headers:h()})
+.then(function(r){return r.json();})
+.then(function(rows){
+  if(rows&&rows.length>0){ weiter(); return; }
+
+  // Demo-Bäckerei anlegen
+  fetch(SB_URL+'/rest/v1/backki_baeckereien',{
+    method:'POST',
+    headers:Object.assign({},h(),{'Prefer':'return=representation'}),
+    body:JSON.stringify({id:DEMO_BID, name:DEMO_NAME, ort:'Wernau', email:'demo@backki.de'})
+  }).then(function(){
+
+    // Demo-Tageseinträge der letzten 7 Tage anlegen
+    var eintraege=[];
+    var produkte=[
+      {name:'Roggenbrot',kat:'Brot',preis:3.20},
+      {name:'Vollkornbrot',kat:'Brot',preis:3.50},
+      {name:'Semmel',kat:'Kleingebäck',preis:0.40},
+      {name:'Laugenbrötchen',kat:'Kleingebäck',preis:0.60},
+      {name:'Käsekuchen',kat:'Kuchen & Süßes',preis:2.80},
+    ];
+    var mengen=[[3,2,12,8,1],[2,1,15,6,2],[4,3,10,9,1],[1,0,18,7,0],[3,2,14,8,2],[2,1,11,5,1],[3,2,13,7,1]];
+    for(var i=6;i>=0;i--){
+      var d=new Date(); d.setDate(d.getDate()-i);
+      var ds=d.toISOString().slice(0,10);
+      produkte.forEach(function(p,pi){
+        var m=mengen[6-i][pi];
+        eintraege.push({
+          baeckerei_id:DEMO_BID, datum:ds,
+          produkt_name:p.name, kategorie:p.kat,
+          menge:m, verlust_eur:parseFloat((m*p.preis).toFixed(2))
+        });
+      });
+    }
+
+    return fetch(SB_URL+'/rest/v1/backki_tageseintraege',{
+      method:'POST', headers:h(), body:JSON.stringify(eintraege)
+    });
+  }).then(weiter).catch(weiter);
+}).catch(weiter);
+
+function weiter(){
+  setTimeout(function(){ window.location.href='index.html'; }, 600);
+}
+</script>
+</body>
+</html>
