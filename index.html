@@ -125,12 +125,31 @@ main{flex:1;display:flex;flex-direction:column;padding:24px 20px 32px;max-width:
 <script>
 var SB_URL='https://ysqzdqazcgyuzdorauiq.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+
+// ── TRACKING ──
+function track(event, meta) {
+  var bid = localStorage.getItem('backki_baeckerei_id') || null;
+  try {
+    fetch(SB_URL + '/rest/v1/backki_events', {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ event: event, baeckerei_id: bid, meta: meta || {} })
+    });
+  } catch(e) {}  // Tracking darf nie crashen
+}
+
 function sbFetch(path,opts){return fetch(SB_URL+'/rest/v1/'+path,Object.assign({headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}},opts||{}));}
 function fmt(n){return n.toFixed(2).replace('.',',')+' €';}
 function getGreeting(){var h=new Date().getHours();return h<11?'Guten Morgen':h<14?'Guten Mittag':h<18?'Guten Nachmittag':'Guten Abend';}
 document.getElementById('greeting-time').textContent=getGreeting();
 
 async function laden(){
+  track('startseite_open');
   var bid=localStorage.getItem('backki_baeckerei_id');
   var name=localStorage.getItem('backki_baeckerei_name')||'Meine Bäckerei';
   document.getElementById('nav-user').textContent=name;
