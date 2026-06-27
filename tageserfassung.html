@@ -564,8 +564,8 @@ function updateTotals() {
   }
 }
 
-function alleNull(){ track('alle_null_clicked', {datum: gewaehltesDatum || 'unbekannt'});
-return (function() {
+function alleNull() {
+  track('alle_null_clicked', {datum: gewaehltesDatum || 'unbekannt'});
   PRODUKTE.forEach(function(p) {
     retouren[p.name]=0;
     var inp = document.getElementById("val-"+p.name.replace(/\s/g,"_"));
