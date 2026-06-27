@@ -117,6 +117,31 @@ nav { background:rgba(26,18,10,0.97); padding:0 16px; height:48px; display:flex;
 .help-item-text { font-size:14px; color:var(--smoke); line-height:1.6; }
 .help-item-text strong { color:var(--ink); }
 .help-close { width:100%; background:var(--ink); color:white; border:none; border-radius:10px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; font-family:"Inter",sans-serif; margin-top:8px; }
+
+/* KALENDER OVERLAY */
+.kal-overlay{display:none;position:fixed;inset:0;background:rgba(26,18,10,.85);z-index:200;align-items:flex-end;justify-content:center;padding:0;}
+.kal-overlay.show{display:flex;}
+.kal-sheet{background:var(--white);border-radius:20px 20px 0 0;padding:24px 20px 36px;max-width:480px;width:100%;}
+.kal-title{font-family:"Fraunces",serif;font-size:18px;font-weight:900;color:var(--ink);margin-bottom:4px;}
+.kal-sub{font-size:12px;color:var(--smoke);margin-bottom:16px;}
+.kal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.kal-nav-btn{background:none;border:1.5px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--smoke);}
+.kal-nav-btn:hover{border-color:var(--crust);color:var(--crust);}
+.kal-monat{font-size:14px;font-weight:700;color:var(--ink);}
+.kal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;}
+.kal-wt{font-size:10px;font-weight:600;text-align:center;color:var(--smoke);padding:4px 0;}
+.kal-tag{width:100%;aspect-ratio:1;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.kal-tag.leer{background:none;cursor:default;color:transparent;}
+.kal-tag.zukunft{background:none;color:var(--border);cursor:default;}
+.kal-tag.frei{background:var(--dough);color:var(--ink);}
+.kal-tag.frei:hover{background:var(--border);}
+.kal-tag.erfasst{background:var(--green-l);color:var(--green);border:1.5px solid #B8E0C8;}
+.kal-tag.erfasst:hover{background:#d4eedd;}
+.kal-tag.heute{background:var(--crust);color:#fff;}
+.kal-tag.heute:hover{background:var(--crust-l);}
+.kal-legende{display:flex;gap:16px;font-size:11px;color:var(--smoke);margin-bottom:16px;}
+.kal-leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;margin-top:1px;}
+.kal-btn-weiter{width:100%;background:var(--crust);color:white;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:"Inter",sans-serif;}
 </style>
 </head>
 <body>
@@ -200,20 +225,151 @@ nav { background:rgba(26,18,10,0.97); padding:0 16px; height:48px; display:flex;
   </div>
 </div>
 
+
+<!-- KALENDER SHEET -->
+<div class="kal-overlay" id="kal-overlay">
+  <div class="kal-sheet">
+    <div class="kal-title">Welchen Tag erfassen?</div>
+    <div class="kal-sub" id="kal-sub">Grün = bereits erfasst · Sie können Einträge jederzeit korrigieren.</div>
+    <div class="kal-nav">
+      <button class="kal-nav-btn" onclick="kalMonat(-1)">‹</button>
+      <span class="kal-monat" id="kal-monat"></span>
+      <button class="kal-nav-btn" onclick="kalMonat(1)">›</button>
+    </div>
+    <div class="kal-grid" id="kal-grid"></div>
+    <div class="kal-legende">
+      <div style="display:flex;gap:6px;align-items:center;"><div class="kal-leg-dot" style="background:var(--green-l);border:1.5px solid #B8E0C8"></div> Bereits erfasst</div>
+      <div style="display:flex;gap:6px;align-items:center;"><div class="kal-leg-dot" style="background:var(--crust)"></div> Heute</div>
+      <div style="display:flex;gap:6px;align-items:center;"><div class="kal-leg-dot" style="background:var(--dough);border:1px solid var(--border)"></div> Offen</div>
+    </div>
+  </div>
+</div>
+
 <script>
-var PRODUKTE = [
-  { kat:"Brot",             icon:"🍞", name:"Roggenbrot",      preis:3.20, baseline:15 },
-  { kat:"Brot",             icon:"🍞", name:"Vollkornbrot",    preis:3.50, baseline:10 },
-  { kat:"Brot",             icon:"🍞", name:"Weißbrot",        preis:2.80, baseline:8  },
-  { kat:"Kleingebäck",      icon:"🥖", name:"Semmel",          preis:0.40, baseline:120 },
-  { kat:"Kleingebäck",      icon:"🥖", name:"Laugenbrötchen",  preis:0.60, baseline:40 },
-  { kat:"Kleingebäck",      icon:"🥖", name:"Laugenbrezel",    preis:0.75, baseline:30 },
-  { kat:"Belegte Brötchen", icon:"🥪", name:"Käsebrötchen",    preis:2.50, baseline:25 },
-  { kat:"Belegte Brötchen", icon:"🥪", name:"Wurstbrötchen",   preis:2.80, baseline:20 },
-  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Käsekuchen",      preis:2.80, baseline:12 },
-  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Streuselkuchen",  preis:2.20, baseline:10 },
-  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Berliner",        preis:0.90, baseline:50 },
-  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Croissant",       preis:1.20, baseline:30 },
+var SB_URL='https://ysqzdqazcgyuzdorauiq.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+function sbFetch(path,opts){return fetch(SB_URL+'/rest/v1/'+path,Object.assign({headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}},opts||{}));}
+
+// Kalender-State
+var kalJahr=new Date().getFullYear();
+var kalMonatIdx=new Date().getMonth();
+var erfassteTage={};  // datum -> verlust_eur
+var gewaehltesDatum=null;
+
+// Seite startet mit Kalender
+window.addEventListener('DOMContentLoaded', function(){
+  var bid=localStorage.getItem('backki_baeckerei_id');
+  if(!bid){ startOhneDB(); return; }
+  ladeKalender(bid);
+});
+
+async function ladeKalender(bid){
+  try{
+    var seit=new Date();seit.setDate(1);seit.setMonth(seit.getMonth()-1);
+    var res=await sbFetch('backki_tageseintraege?baeckerei_id=eq.'+bid+
+      '&datum=gte.'+seit.toISOString().slice(0,10)+
+      '&select=datum,verlust_eur');
+    var rows=await res.json();
+    erfassteTage={};
+    if(Array.isArray(rows))rows.forEach(function(r){
+      if(!erfassteTage[r.datum])erfassteTage[r.datum]=0;
+      erfassteTage[r.datum]+=parseFloat(r.verlust_eur);
+    });
+  }catch(e){ erfassteTage={}; }
+  zeigeKalender();
+}
+
+function zeigeKalender(){
+  document.getElementById('kal-overlay').classList.add('show');
+  renderKalender();
+}
+
+function renderKalender(){
+  var monate=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  document.getElementById('kal-monat').textContent=monate[kalMonatIdx]+' '+kalJahr;
+  var wt=['Mo','Di','Mi','Do','Fr','Sa','So'];
+  var grid=document.getElementById('kal-grid');
+  grid.innerHTML='';
+  wt.forEach(function(w){var d=document.createElement('div');d.className='kal-wt';d.textContent=w;grid.appendChild(d);});
+  var heute=new Date().toISOString().slice(0,10);
+  var erster=new Date(kalJahr,kalMonatIdx,1);
+  var wochentag=(erster.getDay()+6)%7; // 0=Mo
+  for(var i=0;i<wochentag;i++){var l=document.createElement('button');l.className='kal-tag leer';l.textContent='.';grid.appendChild(l);}
+  var tageImMonat=new Date(kalJahr,kalMonatIdx+1,0).getDate();
+  for(var t=1;t<=tageImMonat;t++){
+    var ds=kalJahr+'-'+String(kalMonatIdx+1).padStart(2,'0')+'-'+String(t).padStart(2,'0');
+    var btn=document.createElement('button');
+    btn.textContent=t;
+    if(ds>heute){btn.className='kal-tag zukunft';}
+    else if(ds===heute){btn.className='kal-tag heute';}
+    else if(erfassteTage[ds]!==undefined){btn.className='kal-tag erfasst';}
+    else{btn.className='kal-tag frei';}
+    btn.addEventListener('click',(function(datum){return function(){waehleTag(datum);};})(ds));
+    grid.appendChild(btn);
+  }
+}
+
+function kalMonat(delta){
+  kalMonatIdx+=delta;
+  if(kalMonatIdx>11){kalMonatIdx=0;kalJahr++;}
+  if(kalMonatIdx<0){kalMonatIdx=11;kalJahr--;}
+  renderKalender();
+}
+
+function waehleTag(datum){
+  gewaehltesDatum=datum;
+  document.getElementById('kal-overlay').classList.remove('show');
+  // Datum im Header setzen
+  var d=new Date(datum+'T12:00:00');
+  var tn=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  var mn=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  document.getElementById('tages-datum').textContent=tn[d.getDay()]+', '+d.getDate()+'. '+mn[d.getMonth()]+' '+d.getFullYear();
+  // Bestehende Daten laden falls Tag schon erfasst
+  if(erfassteTage[datum]!==undefined){ ladeBestehendeDaten(datum); }
+}
+
+async function ladeBestehendeDaten(datum){
+  var bid=localStorage.getItem('backki_baeckerei_id');
+  if(!bid)return;
+  try{
+    var res=await sbFetch('backki_tageseintraege?baeckerei_id=eq.'+bid+'&datum=eq.'+datum+'&select=produkt_name,menge');
+    var rows=await res.json();
+    if(Array.isArray(rows))rows.forEach(function(r){
+      retouren[r.produkt_name]=r.menge;
+      var pid=r.produkt_name.replace(/\s/g,'_');
+      var inp=document.getElementById('val-'+pid);
+      if(inp)inp.value=r.menge;
+      updateZeile(r.produkt_name);
+    });
+    updateTotals();
+  }catch(e){}
+}
+
+function startOhneDB(){
+  // Kein Account — trotzdem nutzbar, Datum = heute
+  gewaehltesDatum=new Date().toISOString().slice(0,10);
+}
+
+var PRODUKTE = [var PRODUKTE = [
+  { kat:"Brot",             icon:"🍞", name:"Roggenbrot",       preis:3.20, baseline:15 },
+  { kat:"Brot",             icon:"🍞", name:"Vollkornbrot",     preis:3.50, baseline:10 },
+  { kat:"Brot",             icon:"🍞", name:"Weißbrot",         preis:2.80, baseline:8  },
+  { kat:"Brot",             icon:"🍞", name:"Bauernbrot",       preis:3.80, baseline:6  },
+  { kat:"Kleingebäck",      icon:"🥖", name:"Semmel",           preis:0.40, baseline:120 },
+  { kat:"Kleingebäck",      icon:"🥖", name:"Vollkornbrötchen", preis:0.55, baseline:40 },
+  { kat:"Kleingebäck",      icon:"🥖", name:"Laugenbrötchen",   preis:0.60, baseline:40 },
+  { kat:"Kleingebäck",      icon:"🥖", name:"Laugenbrezel",     preis:0.75, baseline:30 },
+  { kat:"Kleingebäck",      icon:"🥖", name:"Butterbrezel",     preis:1.10, baseline:20 },
+  { kat:"Belegte Brötchen", icon:"🥪", name:"Käsebrötchen",     preis:2.50, baseline:25 },
+  { kat:"Belegte Brötchen", icon:"🥪", name:"Wurstbrötchen",    preis:2.80, baseline:20 },
+  { kat:"Belegte Brötchen", icon:"🥪", name:"Lachsbrötchen",    preis:3.50, baseline:15 },
+  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Käsekuchen",       preis:2.80, baseline:12 },
+  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Streuselkuchen",   preis:2.20, baseline:10 },
+  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Schwarzwälder",    preis:3.20, baseline:8  },
+  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Obstkuchen",       preis:2.60, baseline:8  },
+  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Berliner",         preis:0.90, baseline:50 },
+  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Croissant",        preis:1.20, baseline:30 },
+  { kat:"Kuchen & Süßes",   icon:"🎂", name:"Schnecke",         preis:1.10, baseline:25 },
 ];
 
 var retouren = {};
@@ -406,23 +562,48 @@ function alleNull() {
   mot.innerHTML='🏆 <span><strong>Perfekter Tag!</strong> Alles verkauft — das ist Ihr Ziel.</span>';
 }
 
-function speichern() {
-  var gesamt = PRODUKTE.reduce(function(s,p) { return s+retouren[p.name]*p.preis; },0);
-  document.getElementById("modal-verlust").textContent = gesamt.toFixed(2).replace(".",",")+" €";
-  document.getElementById("modal-verlust").className = "modal-verlust"+(gesamt===0 ? " zero" : "");
+async function speichern() {
+  var gesamt = PRODUKTE.reduce(function(s,p){return s+retouren[p.name]*p.preis;},0);
+  document.getElementById("modal-verlust").innerHTML = gesamt===0?"&#10003;":
+    "&minus;"+gesamt.toFixed(2).replace(".",",")+"&nbsp;&euro;";
+  document.getElementById("modal-verlust").className="modal-verlust"+(gesamt===0?" zero":"");
 
-  if (gesamt===0) {
-    document.getElementById("modal-icon").textContent = "🏆";
-    document.getElementById("modal-title").textContent = "Perfekter Tag!";
-    document.getElementById("modal-sub").textContent = "Alles verkauft — kein einziges Produkt übrig. Genau das ist das Ziel.";
-  } else if (gesamt < 20) {
-    document.getElementById("modal-icon").textContent = "👍";
-    document.getElementById("modal-title").textContent = "Sehr guter Tag!";
-    document.getElementById("modal-sub").textContent = "Unter 20 € Verlust — BackKI sieht einen positiven Trend.";
+  if(gesamt===0){
+    document.getElementById("modal-icon").textContent="🏆";
+    document.getElementById("modal-title").textContent="Perfekter Tag!";
+    document.getElementById("modal-sub").textContent="Alles verkauft — kein einziges Produkt übrig.";
+  } else if(gesamt<20){
+    document.getElementById("modal-icon").textContent="👍";
+    document.getElementById("modal-title").textContent="Sehr guter Tag!";
+    document.getElementById("modal-sub").textContent="Unter 20 € Verlust — BackKI sieht einen positiven Trend.";
   } else {
-    document.getElementById("modal-icon").textContent = "📊";
-    document.getElementById("modal-title").textContent = "Tag gespeichert!";
-    document.getElementById("modal-sub").textContent = "BackKI lernt aus diesem Tag. Nach 7 Tagen folgt die erste Empfehlung.";
+    document.getElementById("modal-icon").textContent="📊";
+    document.getElementById("modal-title").textContent="Tag gespeichert!";
+    document.getElementById("modal-sub").textContent="BackKI lernt aus diesem Tag. Nach 7 Tagen folgt die erste Empfehlung.";
+  }
+
+  // Supabase speichern
+  var bid=localStorage.getItem('backki_baeckerei_id');
+  var datum=gewaehltesDatum||new Date().toISOString().slice(0,10);
+  if(bid){
+    try{
+      var eintraege=PRODUKTE.map(function(p){
+        return {
+          baeckerei_id:bid,datum:datum,
+          produkt_name:p.name,kategorie:p.kat,
+          menge:retouren[p.name],
+          verlust_eur:retouren[p.name]*p.preis
+        };
+      });
+      await sbFetch('backki_tageseintraege',{
+        method:'POST',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
+          'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+        body:JSON.stringify(eintraege)
+      });
+      // Kalender aktualisieren
+      erfassteTage[datum]=gesamt;
+    }catch(e){ console.error('Speichern fehlgeschlagen:',e); }
   }
   document.getElementById("overlay").classList.add("show");
 }
@@ -437,6 +618,13 @@ function closeHelp() { document.getElementById("help-overlay").classList.remove(
 
 render();
 updateTotals();
+// Kalender beim Start — falls kein DOMContentLoaded mehr nötig
+if(document.readyState==='loading'){
+  // bereits via DOMContentLoaded gestartet
+} else {
+  var bid=localStorage.getItem('backki_baeckerei_id');
+  if(bid){ladeKalender(bid);}else{startOhneDB();}
+}
 </script>
 </body>
 </html>
