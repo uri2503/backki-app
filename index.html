@@ -63,6 +63,22 @@ main{flex:1;display:flex;flex-direction:column;padding:24px 20px 32px;max-width:
 .last-entry-text{flex:1;font-size:13px;color:var(--smoke);}
 .last-entry-text strong{color:var(--ink);}
 .last-entry-val{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--crust);}
+
+/* TOUR OVERLAY */
+.tour-overlay{display:none;position:fixed;inset:0;background:rgba(26,18,10,.6);z-index:300;align-items:flex-end;justify-content:center;}
+.tour-overlay.show{display:flex;}
+.tour-sheet{background:var(--white);border-radius:20px 20px 0 0;padding:28px 24px 40px;max-width:480px;width:100%;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.tour-step-dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px;}
+.tour-dot{width:6px;height:6px;border-radius:50%;background:var(--border);}
+.tour-dot.aktiv{background:var(--crust);width:18px;border-radius:3px;}
+.tour-icon{font-size:40px;text-align:center;margin-bottom:12px;}
+.tour-title{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--ink);text-align:center;margin-bottom:8px;}
+.tour-text{font-size:14px;color:var(--smoke);text-align:center;line-height:1.6;margin-bottom:24px;}
+.tour-btn{width:100%;background:var(--crust);color:white;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+.tour-btn:hover{background:var(--crust-l);}
+.tour-skip{display:block;text-align:center;margin-top:12px;font-size:12px;color:var(--smoke);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;}
+.tour-skip:hover{color:var(--ink);}
 </style>
 </head>
 <body>
@@ -196,7 +212,82 @@ function leer(){
   document.getElementById('last-entry').innerHTML='<span class="empty-hint-icon">👋</span><div class="empty-hint-text"><strong>Noch keine Einträge.</strong><br>Starten Sie mit der ersten Tageserfassung.</div>';
   document.getElementById('last-entry').className='empty-hint';
 }
-laden();
+laden().then(function(){ setTimeout(tourZeigen, 800); });
+
+// ── EINMALIGER TOUR-FLOW ──
+var TOUR_SCHRITTE = [
+  {
+    icon: '✏️',
+    title: 'Jeden Abend 2 Minuten',
+    text: 'Tippen Sie auf <strong>Tageserfassung</strong> und tragen Sie ein, was heute übrig geblieben ist. Das war's — BackKI rechnet alles automatisch.',
+    btn: 'Weiter →'
+  },
+  {
+    icon: '📊',
+    title: 'Ihr Verlust wird sichtbar',
+    text: 'BackKI zeigt Ihnen täglich wie viel Geld durch Retouren verloren geht — und erkennt nach 7 Tagen erste Muster.',
+    btn: 'Weiter →'
+  },
+  {
+    icon: '💡',
+    title: 'Nach 28 Tagen: KI-Empfehlungen',
+    text: 'BackKI analysiert Ihr Sortiment und gibt konkrete Empfehlungen — welche Mengen Sie reduzieren können, um Verluste zu senken.',
+    btn: 'Los geht's ✓'
+  }
+];
+var tourSchritt = 0;
+
+function tourZeigen() {
+  if (localStorage.getItem('backki_tour_done')) return;
+  // Nur zeigen wenn bereits mindestens 1 Eintrag vorhanden
+  var bid = localStorage.getItem('backki_baeckerei_id');
+  if (!bid) return;
+  document.getElementById('tour-overlay').classList.add('show');
+  tourRendern();
+}
+
+function tourRendern() {
+  var s = TOUR_SCHRITTE[tourSchritt];
+  document.getElementById('tour-icon').textContent = s.icon;
+  document.getElementById('tour-title').textContent = s.title;
+  document.getElementById('tour-text').innerHTML = s.text;
+  document.getElementById('tour-btn').textContent = s.btn;
+  for (var i = 0; i < 3; i++) {
+    document.getElementById('td-' + i).className = 'tour-dot' + (i === tourSchritt ? ' aktiv' : '');
+  }
+}
+
+function tourWeiter() {
+  tourSchritt++;
+  if (tourSchritt >= TOUR_SCHRITTE.length) {
+    tourSchliessen();
+  } else {
+    tourRendern();
+  }
+}
+
+function tourSchliessen() {
+  localStorage.setItem('backki_tour_done', '1');
+  document.getElementById('tour-overlay').classList.remove('show');
+}
+
 </script>
+
+<!-- TOUR SHEET -->
+<div class="tour-overlay" id="tour-overlay">
+  <div class="tour-sheet">
+    <div class="tour-step-dots">
+      <div class="tour-dot aktiv" id="td-0"></div>
+      <div class="tour-dot" id="td-1"></div>
+      <div class="tour-dot" id="td-2"></div>
+    </div>
+    <div class="tour-icon" id="tour-icon">✏️</div>
+    <div class="tour-title" id="tour-title">Jeden Abend 2 Minuten</div>
+    <div class="tour-text" id="tour-text">Tippen Sie auf <strong>Tageserfassung</strong> und tragen Sie ein, was heute übrig geblieben ist. Das war's — BackKI rechnet alles automatisch.</div>
+    <button class="tour-btn" id="tour-btn" onclick="tourWeiter()">Weiter →</button>
+    <button class="tour-skip" onclick="tourSchliessen()">Überspringen</button>
+  </div>
+</div>
+
 </body>
 </html>
