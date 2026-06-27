@@ -294,9 +294,9 @@ function render() {
       btnM.addEventListener("click", (function(n) { return function() { step(n, -1); }; })(p.name));
 
       var inp = document.createElement("input");
-      inp.className = "pz-val"; inp.type = "number"; inp.min = "0"; inp.value = "0"; inp.setAttribute("inputmode","numeric"); inp.setAttribute("autocomplete","off");
+      inp.className = "pz-val"; inp.type = "number"; inp.min = "0"; inp.value = "0";
       inp.id = "val-" + pid;
-      inp.addEventListener("change", (function(n) { return function(e) { setVal(n, e.target.value); }; })(p.name));
+      inp.addEventListener("change", (function(n) { return function() { setVal(n, this.value); }; })(p.name));
 
       var btnP = document.createElement("button");
       btnP.className = "pz-btn"; btnP.textContent = "+";
@@ -305,7 +305,7 @@ function render() {
       stepper.appendChild(btnM); stepper.appendChild(inp); stepper.appendChild(btnP);
 
       var vl = document.createElement("div");
-      vl.className = "pz-verlust zero"; vl.id = "vl-" + pid; vl.textContent = "\u2713";
+      vl.className = "pz-verlust zero"; vl.id = "vl-" + pid; vl.innerHTML = "&#10003;";
 
       row.appendChild(info); row.appendChild(stepper); row.appendChild(vl);
       body.appendChild(row);
@@ -342,7 +342,7 @@ function updateZeile(name) {
   document.getElementById("row-"+pid).className = "produkt-zeile" + (val===0 ? " kein-retoure" : "");
   var vl = document.getElementById("vl-"+pid);
   vl.className = "pz-verlust" + (val===0 ? " zero" : "");
-  vl.textContent = val===0 ? "✓" : "−"+eur.toFixed(2).replace(".",",")+"&nbsp;€";
+  vl.innerHTML = val===0 ? "&#10003;" : "&minus;"+eur.toFixed(2).replace(".",",")+"&nbsp;&euro;";
 }
 
 function updateTotals() {
@@ -361,7 +361,7 @@ function updateTotals() {
     if (sum < besteVal) { besteVal=sum; besteKat=kat; }
     var el = document.getElementById("v-kat-"+idx);
     if (el) {
-      el.textContent = sum>0 ? "−"+sum.toFixed(2).replace(".",",")+"&nbsp;€" : "✓";
+      el.innerHTML = sum>0 ? "&minus;"+sum.toFixed(2).replace(".",",")+"&nbsp;&euro;" : "&#10003;";
       el.className = "kat-verlust"+(sum>0 ? "" : " zero");
     }
   });
