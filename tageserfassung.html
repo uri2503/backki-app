@@ -274,12 +274,12 @@ var kalMonatIdx=new Date().getMonth();
 var erfassteTage={};  // datum -> verlust_eur
 var gewaehltesDatum=null;
 
-// Seite startet mit Kalender
-window.addEventListener('DOMContentLoaded', function(){
+// Kalender-Start — direkt aufrufen (Script steht am Ende des Body)
+function initStart(){
   var bid=localStorage.getItem('backki_baeckerei_id');
   if(!bid){ startOhneDB(); return; }
   ladeKalender(bid);
-});
+}
 
 async function ladeKalender(bid){
   try{
@@ -640,13 +640,7 @@ function closeHelp() { document.getElementById("help-overlay").classList.remove(
 
 render();
 updateTotals();
-// Kalender beim Start — falls kein DOMContentLoaded mehr nötig
-if(document.readyState==='loading'){
-  // bereits via DOMContentLoaded gestartet
-} else {
-  var bid=localStorage.getItem('backki_baeckerei_id');
-  if(bid){ladeKalender(bid);}else{startOhneDB();}
-}
+initStart();
 </script>
 </body>
 </html>
