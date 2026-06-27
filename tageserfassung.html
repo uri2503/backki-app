@@ -366,8 +366,9 @@ async function ladeBestehendeDaten(datum){
 }
 
 function startOhneDB(){
-  // Kein Account — trotzdem nutzbar, Datum = heute
+  // Kein Account — Kalender trotzdem zeigen, Datum = heute vorausgewählt
   gewaehltesDatum=new Date().toISOString().slice(0,10);
+  zeigeKalender();
 }
 
 var PRODUKTE = [
@@ -472,7 +473,7 @@ function render() {
       var inp = document.createElement("input");
       inp.className = "pz-val"; inp.type = "number"; inp.min = "0"; inp.value = "0";
       inp.id = "val-" + pid;
-      inp.addEventListener("change", (function(n) { return function() { setVal(n, this.value); }; })(p.name));
+      inp.addEventListener("change", (function(n) { return function(e) { setVal(n, e.target.value); }; })(p.name));
 
       var btnP = document.createElement("button");
       btnP.className = "pz-btn"; btnP.textContent = "+";
