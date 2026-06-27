@@ -566,8 +566,8 @@ input[type=range].ersparnis-slider {
   <div class="step" id="step-success">
     <div class="success-wrap">
       <div class="success-icon">🎉</div>
-      <h1 class="success-title">Ihr Sortiment ist bereit!</h1>
-      <p class="success-sub">Ab heute können Sie täglich Ihre Retouren eintragen. BackKI berechnet Ihren Verlust automatisch — und gibt Ihnen nach 4 Wochen erste Empfehlungen.</p>
+      <h1 class="success-title" id="success-title">Ihre Bäckerei ist bereit für die Zukunft.</h1>
+      <p class="success-sub">Ab heute erfassen Sie täglich Ihre Retouren. BackKI lernt mit — und liefert Ihnen nach 4 Wochen konkrete Empfehlungen zur Kostenreduktion.</p>
 
       <div class="success-box">
         <div class="success-box-title">Ihre nächsten Schritte</div>
@@ -594,6 +594,10 @@ input[type=range].ersparnis-slider {
 </div>
 
 <script>
+var SB_URL='https://ysqzdqazcgyuzdorauiq.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+function sbFetch(path,opts){return fetch(SB_URL+'/rest/v1/'+path,Object.assign({headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}},opts||{}));}
+
 // ── MUSTERSORTIMENT ──
 var SORTIMENT = [
   { kat: 'Brot', icon: '🍞', produkte: [
@@ -922,7 +926,37 @@ function goStep3() {
   goStep(3);
 }
 
-function goSuccess() {
+async function goSuccess() {
+  // Lade-Anzeige
+  var btn = event.target;
+  btn.textContent = 'Wird gespeichert…';
+  btn.disabled = true;
+
+  try {
+    // 1. Bäckerei anlegen
+    var baeckName = localStorage.getItem('backki_baeckerei_name') || 'Meine Bäckerei';
+    var resB = await sbFetch('backki_baeckereien', {
+      method: 'POST',
+      body: JSON.stringify({ name: baeckName })
+    });
+    var baeck = await resB.json();
+    var bid = Array.isArray(baeck) ? baeck[0].id : baeck.id;
+    var lkey = Array.isArray(baeck) ? baeck[0].lizenz_key : baeck.lizenz_key;
+    localStorage.setItem('backki_baeckerei_id', bid);
+    localStorage.setItem('backki_lizenz_key', lkey);
+
+    // 2. Sortiment speichern
+    var aktive = Object.values(state).filter(function(s){ return s.aktiv; });
+    var sortArr = aktive.map(function(s){
+      return { baeckerei_id: bid, kategorie: s.kat, name: s.name, preis: s.preis, baseline: s.baseline, aktiv: true };
+    });
+    await sbFetch('backki_sortiment', { method: 'POST', body: JSON.stringify(sortArr) });
+
+  } catch(e) {
+    console.error('Supabase Fehler:', e);
+    // Trotzdem weitermachen — Offline-Modus
+  }
+
   document.getElementById('step-3').classList.remove('active');
   document.getElementById('step-success').classList.add('active');
   document.getElementById('nav-step-num').textContent = '✓';
