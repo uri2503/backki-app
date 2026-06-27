@@ -190,8 +190,8 @@ async function laden(){
     var n=tage.length,ziel=28,pct=Math.min(Math.round(n/ziel*100),100);
     document.getElementById('progress-fill').style.width=pct+'%';
     document.getElementById('progress-pct').textContent=pct+'%';
-    document.getElementById('progress-label').textContent=n+' von '+ziel+' Tagen — BackKI wird präziser';
-    document.getElementById('progress-hint').textContent=n<7?'BackKI lernt Ihr Sortiment kennen. Weiter so!':n<14?'Erste Muster erkannt — noch '+(14-n)+' Tage bis zur Auswertung.':n<28?'Fast da — noch '+(ziel-n)+' Tage bis zur KI-Empfehlung.':'✅ BackKI ist vollständig kalibriert!';
+    var meilenstein=n<7?7:28;document.getElementById('progress-label').textContent=n+' von '+meilenstein+' Tagen — '+(n<7?'bis zu ersten Tipps':'vollständig kalibriert');
+    document.getElementById('progress-hint').textContent=n<5?'Noch '+(5-n)+' Tage bis zu ersten Tipps — täglich erfassen lohnt sich!':n<7?'Fast da — noch '+(7-n)+' Tag'+(7-n===1?'':'e')+' bis zu Ihren ersten BackKI-Tipps.':n<28?'💡 Erste Tipps verfügbar — Auswertung ansehen!':'✅ BackKI kennt Ihr Sortiment vollständig.';
     // Letzter Eintrag
     var lt=tage[0];var d=new Date(lt+'T12:00:00');
     var tn=['So','Mo','Di','Mi','Do','Fr','Sa'];
