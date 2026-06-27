@@ -246,38 +246,68 @@ function render() {
   PRODUKTE.forEach(function(p) { if (!kats.includes(p.kat)) kats.push(p.kat); });
   var el = document.getElementById("sortiment");
   el.innerHTML = "";
+
   kats.forEach(function(kat, idx) {
     var prods = PRODUKTE.filter(function(p) { return p.kat === kat; });
     var icon = prods[0].icon;
     var id = "kat-" + idx;
-    var div = document.createElement("div");
-    div.className = "kategorie";
-    div.innerHTML =
-      '<div class="kat-header" id="h-'+id+'" onclick="toggleKat(\''+id+\')">' +
-        '<span class="kat-icon">'+icon+'</span>' +
-        '<span class="kat-name">'+kat+'</span>' +
-        '<span class="kat-verlust zero" id="v-'+id+'">✓</span>' +
-        '<span class="kat-pfeil">▼</span>' +
-      '</div>' +
-      '<div class="kat-body" id="b-'+id+'"></div>';
-    el.appendChild(div);
-    var body = document.getElementById("b-"+id);
+
+    var katDiv = document.createElement("div");
+    katDiv.className = "kategorie";
+
+    var header = document.createElement("div");
+    header.className = "kat-header";
+    header.id = "h-" + id;
+    header.innerHTML =
+      '<span class="kat-icon">' + icon + '</span>' +
+      '<span class="kat-name">' + kat + '</span>' +
+      '<span class="kat-verlust zero" id="v-' + id + '">\u2713</span>' +
+      '<span class="kat-pfeil">\u25bc</span>';
+    header.addEventListener("click", (function(kid) {
+      return function() { toggleKat(kid); };
+    })(id));
+
+    var body = document.createElement("div");
+    body.className = "kat-body";
+    body.id = "b-" + id;
+
+    katDiv.appendChild(header);
+    katDiv.appendChild(body);
+    el.appendChild(katDiv);
+
     prods.forEach(function(p) {
-      var pid = p.name.replace(/\s/g,"_");
+      var pid = p.name.replace(/\s/g, "_");
       var row = document.createElement("div");
       row.className = "produkt-zeile kein-retoure";
-      row.id = "row-"+pid;
-      row.innerHTML =
-        '<div class="pz-info">' +
-          '<div class="pz-name">'+p.name+'</div>' +
-          '<div class="pz-baseline">Basis: '+p.baseline+' Stück · '+p.preis.toFixed(2).replace(".",",")+'&nbsp;€</div>' +
-        '</div>' +
-        '<div class="pz-stepper">' +
-          '<button class="pz-btn" onclick="step(\''+p.name+'\',-1)">−</button>' +
-          '<input class="pz-val" type="number" min="0" value="0" id="val-'+pid+'" onchange="setVal(\''+p.name+'\',this.value)">' +
-          '<button class="pz-btn" onclick="step(\''+p.name+'\',1)">+</button>' +
-        '</div>' +
-        '<div class="pz-verlust zero" id="vl-'+pid+'">✓</div>';
+      row.id = "row-" + pid;
+
+      var info = document.createElement("div");
+      info.className = "pz-info";
+      info.innerHTML = '<div class="pz-name">' + p.name + '</div>' +
+        '<div class="pz-baseline">Basis: ' + p.baseline + ' St\u00fcck \u00b7 ' + p.preis.toFixed(2).replace(".", ",") + '\u00a0\u20ac</div>';
+
+      var stepper = document.createElement("div");
+      stepper.className = "pz-stepper";
+
+      var btnM = document.createElement("button");
+      btnM.className = "pz-btn"; btnM.textContent = "\u2212";
+      btnM.addEventListener("click", (function(n) { return function() { step(n, -1); }; })(p.name));
+
+      var inp = document.createElement("input");
+      inp.className = "pz-val"; inp.type = "number"; inp.min = "0"; inp.value = "0";
+      inp.id = "val-" + pid;
+      inp.addEventListener("change", (function(n) { return function() { setVal(n, this.value); }; })(p.name));
+
+      var btnP = document.createElement("button");
+      btnP.className = "pz-btn"; btnP.textContent = "+";
+      btnP.addEventListener("click", (function(n) { return function() { step(n, 1); }; })(p.name));
+
+      stepper.appendChild(btnM); stepper.appendChild(inp); stepper.appendChild(btnP);
+
+      var vl = document.createElement("div");
+      vl.className = "pz-verlust zero"; vl.id = "vl-" + pid; vl.textContent = "\u2713";
+
+      row.appendChild(info); row.appendChild(stepper); row.appendChild(vl);
       body.appendChild(row);
     });
   });
