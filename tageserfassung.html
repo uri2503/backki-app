@@ -33,6 +33,7 @@ nav { background:rgba(26,18,10,0.97); padding:0 16px; height:48px; display:flex;
 .tages-greeting { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,0.35); margin-bottom:3px; }
 .tages-title { font-family:"Fraunces",serif; font-size:18px; font-weight:900; color:#fff; line-height:1.2; }
 .tages-sub { font-size:11px; color:rgba(255,255,255,0.3); margin-top:2px; }
+.tages-datum { font-size:13px; font-weight:600; color:var(--crust-l); margin-bottom:4px; }
 .tages-total { text-align:center; flex-shrink:0; }
 .tages-total-val { font-family:"Fraunces",serif; font-size:32px; font-weight:900; color:var(--crust-l); line-height:1; }
 .tages-total-label { font-size:10px; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; }
@@ -125,20 +126,15 @@ nav { background:rgba(26,18,10,0.97); padding:0 16px; height:48px; display:flex;
   <div class="nav-logo">Back<em>KI</em></div>
   <button class="nav-help" onclick="showHelp()">?</button>
 </nav>
-<div style="background:rgba(26,18,10,0.05);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:8px;">
-  <span style="font-size:11px;color:var(--smoke);">📅</span>
-  <span style="font-size:12px;font-weight:600;color:var(--smoke);" id="datum-bar">Samstag, 27. Juni 2026</span>
-  <span style="font-size:11px;color:var(--border);margin:0 4px;">·</span>
-  <span style="font-size:12px;color:var(--smoke);">Tageserfassung</span>
-</div>
+
 
 <div class="container">
 
   <div class="tages-header">
     <div class="tages-left">
       <div class="tages-greeting" id="greeting">Guten Morgen</div>
+      <div class="tages-datum" id="tages-datum">Samstag, 27. Juni 2026</div>
       <div class="tages-title">Was ist heute<br>übrig geblieben?</div>
-      <div class="tages-sub" id="tages-datum">Samstag, 27. Juni</div>
     </div>
     <div class="tages-total">
       <div class="tages-total-val" id="total-val">0 €</div>
@@ -240,7 +236,7 @@ var datumHeute = tageLang[heute.getDay()]+", "+heute.getDate()+". "+monate[heute
 var datumMorgen = tageLang[morgen.getDay()]+", "+morgen.getDate()+". "+monateKurz[morgen.getMonth()];
 
 // Datum in Header-Bar
-document.getElementById("datum-bar").textContent = datumHeute;
+
 document.getElementById("tages-datum").textContent = datumHeute;
 document.getElementById("modal-datum-label").textContent = datumHeute;
 document.getElementById("modal-next-date").textContent = datumMorgen;
