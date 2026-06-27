@@ -241,13 +241,29 @@ function renderAuswertung(tageMap, schaetzProTag, sortiment){
   html += '<div class="aw-kpi"><div class="aw-kpi-val amber">'+fmt(nettoVerlust)+'</div><div class="aw-kpi-label">Netto-Verlust (WE)</div><div class="aw-kpi-sub">'+wareneinsatz+'% Wareneinsatz</div></div>';
   html += '</div></div>';
 
+  // Zentraler Hinweis-Banner für Neueinsteiger
+  if(anzahlEcht<7){
+    html += '<div style="background:linear-gradient(135deg,#B8722A,#D4903E);border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;align-items:center;">';
+    html += '<div style="font-size:24px;flex-shrink:0">💡</div>';
+    html += '<div>';
+    html += '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">5–7 Tage = erste Tipps</div>';
+    html += '<div style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.5">Wenn Sie <strong style=\'color:#fff\'>konsequent täglich erfassen</strong>, kann BackKI bereits nach einer Woche zeigen welche Produkte Sie reduzieren sollten — und wieviel das bringt.</div>';
+    html += '</div></div>';
+  }
+
   // Insights
   html += '<div class="section-title">Einschätzung</div>';
 
   if(anzahlEcht===0){
-    html += '<div class="insight-card"><div class="insight-icon">📋</div><div><div class="insight-title">Schätzung aktiv</div><div class="insight-text">Noch keine echten Daten. BackKI rechnet mit '+retourenQuote+' % Retourenquote auf Ihr Sortiment. Täglich erfassen für präzisere Werte.</div></div></div>';
-  } else if(anzahlEcht<7){
+    html += '<div class="insight-card"><div class="insight-icon">📋</div><div><div class="insight-title">Schätzung aktiv — starten Sie heute</div><div class="insight-text">BackKI rechnet mit '+retourenQuote+' % Retourenquote auf Ihr Sortiment. <strong>Schon nach 5–7 konsequenten Einträgen</strong> können wir Ihnen erste konkrete Tipps geben.</div></div></div>';
+  } else if(anzahlEcht<5){
     html += '<div class="insight-card"><div class="insight-icon">📈</div><div><div class="insight-title">'+anzahlEcht+' von 7 Tagen erfasst</div><div class="insight-text">Noch '+(7-anzahlEcht)+' Tage bis zur ersten echten Wochenauswertung. Fehlende Tage werden mit '+retourenQuote+' % geschätzt.</div><div class="insight-val">'+fmt(schaetzProTag)+' /Tag (Schätzung)</div></div></div>';
+  } else if(anzahlEcht>=5) {
+    var avgEcht=echt30/anzahlEcht;
+    // Erster Tipp ab 5 Tagen
+    if(anzahlEcht>=5&&anzahlEcht<14){
+      html += '<div class="insight-card" style="border-color:var(--crust)"><div class="insight-icon">🎯</div><div><div class="insight-title">Ihr erster BackKI-Tipp</div><div class="insight-text">Basierend auf '+anzahlEcht+' Tagen: Ihr Ø Tagesverlust liegt bei <strong>'+fmt(avgEcht)+'</strong>. Schauen Sie welche Kategorie konstant übrig bleibt — dort ist das größte Einsparpotenzial.</div></div></div>';
+    }
   } else {
     var avgEcht=echt30/anzahlEcht;
     html += '<div class="insight-card"><div class="insight-icon">✅</div><div><div class="insight-title">Echte Daten aktiv</div><div class="insight-text">Ø Tagesverlust aus '+anzahlEcht+' Einträgen.</div><div class="insight-val">'+fmt(avgEcht)+' /Tag (echt)</div></div></div>';
