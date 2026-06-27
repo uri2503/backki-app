@@ -247,18 +247,18 @@ nav {
 
 <script>
 var PRODUKTE = [
-  { kat:"Brot",             icon:"🍞", name:"Roggenbrot",      preis:3.20, baseline:15 },
-  { kat:"Brot",             icon:"🍞", name:"Vollkornbrot",    preis:3.50, baseline:10 },
-  { kat:"Brot",             icon:"🍞", name:"Weißbrot",        preis:2.80, baseline:8  },
-  { kat:"Brötchen",         icon:"🥖", name:"Semmel",          preis:0.40, baseline:120 },
-  { kat:"Brötchen",         icon:"🥖", name:"Laugenbrötchen",  preis:0.60, baseline:40 },
-  { kat:"Belegte Brötchen", icon:"🥪", name:"Käsebrötchen",    preis:2.50, baseline:25 },
-  { kat:"Belegte Brötchen", icon:"🥪", name:"Wurstbrötchen",   preis:2.80, baseline:20 },
-  { kat:"Kuchen",           icon:"🎂", name:"Käsekuchen",      preis:2.80, baseline:12 },
-  { kat:"Kuchen",           icon:"🎂", name:"Streuselkuchen",  preis:2.20, baseline:10 },
-  { kat:"Süße Stückle",     icon:"🥐", name:"Berliner",        preis:0.90, baseline:50 },
-  { kat:"Süße Stückle",     icon:"🥐", name:"Croissant",       preis:1.20, baseline:30 },
-  { kat:"Brezel",           icon:"🥨", name:"Laugenbrezel",    preis:0.75, baseline:60 },
+  { kat:"Brot",              icon:"🍞", name:"Roggenbrot",      preis:3.20, baseline:15 },
+  { kat:"Brot",              icon:"🍞", name:"Vollkornbrot",    preis:3.50, baseline:10 },
+  { kat:"Brot",              icon:"🍞", name:"Weißbrot",        preis:2.80, baseline:8  },
+  { kat:"Kleingebäck",       icon:"🥖", name:"Semmel",          preis:0.40, baseline:120 },
+  { kat:"Kleingebäck",       icon:"🥖", name:"Laugenbrötchen",  preis:0.60, baseline:40 },
+  { kat:"Kleingebäck",       icon:"🥖", name:"Laugenbrezel",    preis:0.75, baseline:30 },
+  { kat:"Belegte Brötchen",  icon:"🥪", name:"Käsebrötchen",    preis:2.50, baseline:25 },
+  { kat:"Belegte Brötchen",  icon:"🥪", name:"Wurstbrötchen",   preis:2.80, baseline:20 },
+  { kat:"Kuchen & Süßes",    icon:"🎂", name:"Käsekuchen",      preis:2.80, baseline:12 },
+  { kat:"Kuchen & Süßes",    icon:"🎂", name:"Streuselkuchen",  preis:2.20, baseline:10 },
+  { kat:"Kuchen & Süßes",    icon:"🎂", name:"Berliner",        preis:0.90, baseline:50 },
+  { kat:"Kuchen & Süßes",    icon:"🎂", name:"Croissant",       preis:1.20, baseline:30 },
 ];
 
 var retouren = {};
@@ -383,7 +383,8 @@ function updateTotals() {
 
   // Abschluss einblenden wenn Eingaben da
   var hatEingabe = Object.values(retouren).some(function(v) { return v > 0; });
-  document.getElementById("abschluss").style.display = "block";
+  var hatEingaben = Object.values(retouren).some(function(v) { return v > 0; });
+  document.getElementById("abschluss").style.display = hatEingaben ? "block" : "none";
 
   document.getElementById("ab-heute").textContent  = gesamt.toFixed(2).replace(".",",") + " €";
   document.getElementById("ab-monat").textContent  = (gesamt * 26).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,".") + " €";
