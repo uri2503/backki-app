@@ -596,6 +596,24 @@ input[type=range].ersparnis-slider {
 <script>
 var SB_URL='https://ysqzdqazcgyuzdorauiq.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+
+// ── TRACKING ──
+function track(event, meta) {
+  var bid = localStorage.getItem('backki_baeckerei_id') || null;
+  try {
+    fetch(SB_URL + '/rest/v1/backki_events', {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ event: event, baeckerei_id: bid, meta: meta || {} })
+    });
+  } catch(e) {}
+}
+
 function sbFetch(path,opts){return fetch(SB_URL+'/rest/v1/'+path,Object.assign({headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}},opts||{}));}
 
 // ── MUSTERSORTIMENT ──
@@ -640,6 +658,7 @@ SORTIMENT.forEach(function(k) {
 
 // ── RENDER SORTIMENT ──
 function renderSortiment() {
+  if (!localStorage.getItem('_onb_start_tracked')) { track('onboarding_start'); localStorage.setItem('_onb_start_tracked', '1'); }
   var container = document.getElementById('sortiment-container');
   container.innerHTML = '';
 
@@ -906,6 +925,8 @@ function updateSlider(val) {
 var currentStep = 1;
 
 function goStep(n) {
+  if (n === 2) track('onboarding_step2', { produkte_aktiv: Object.values(state).filter(function(s){ return s.aktiv; }).length });
+  if (n === 3) track('onboarding_step3', { ersparnis_pct: parseInt(document.getElementById('ersparnis-slider') && document.getElementById('ersparnis-slider').value || 30) });
   document.getElementById('step-' + currentStep).classList.remove('active');
   currentStep = n;
   document.getElementById('step-' + n).classList.add('active');
@@ -944,6 +965,7 @@ async function goSuccess() {
     var lkey = Array.isArray(baeck) ? baeck[0].lizenz_key : baeck.lizenz_key;
     localStorage.setItem('backki_baeckerei_id', bid);
     localStorage.setItem('backki_lizenz_key', lkey);
+    track('onboarding_complete', { baeckerei_id: bid });
 
     // 2. Sortiment speichern
     var aktive = Object.values(state).filter(function(s){ return s.aktiv; });
