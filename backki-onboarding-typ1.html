@@ -112,25 +112,50 @@ nav {
 }
 
 /* KATEGORIE */
-.kategorie { margin-bottom: 28px; }
+.kategorie { margin-bottom: 8px; }
 .kategorie-header {
   display: flex; align-items: center; gap: 10px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--border);
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.2s;
 }
-.kategorie-icon { font-size: 20px; }
+.kategorie-header:hover { border-color: var(--crust); }
+.kategorie-header.offen {
+  border-color: var(--crust);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.kategorie-icon { font-size: 20px; flex-shrink: 0; }
 .kategorie-name {
   font-family: 'Fraunces', serif;
-  font-size: 17px; font-weight: 700;
-  color: var(--ink);
+  font-size: 15px; font-weight: 700;
+  color: var(--ink); flex: 1;
 }
 .kategorie-count {
-  margin-left: auto;
   font-size: 11px; color: var(--smoke);
   background: var(--border);
   padding: 2px 8px; border-radius: 20px;
 }
+.kategorie-pfeil {
+  font-size: 11px; color: var(--smoke);
+  transition: transform 0.25s; flex-shrink: 0;
+}
+.kategorie-header.offen .kategorie-pfeil { transform: rotate(180deg); }
+.kategorie-body {
+  display: none;
+  background: var(--white);
+  border: 1.5px solid var(--crust);
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding: 12px;
+  margin-bottom: 0;
+}
+.kategorie-body.offen { display: block; }
 
 /* PRODUKT CARD */
 .produkt-list { display: flex; flex-direction: column; gap: 8px; }
@@ -548,23 +573,56 @@ function renderSortiment() {
       return state[k.kat + '_' + p.name] && state[k.kat + '_' + p.name].aktiv;
     }).length;
 
+    var katId = k.kat.replace(/\s/g, '_');
     var div = document.createElement('div');
     div.className = 'kategorie';
-    div.innerHTML =
-      '<div class="kategorie-header">' +
-        '<span class="kategorie-icon">' + k.icon + '</span>' +
-        '<span class="kategorie-name">' + k.kat + '</span>' +
-        '<span class="kategorie-count" id="count-' + k.kat + '">' + aktiveCount + ' aktiv</span>' +
-      '</div>' +
-      '<div class="produkt-list" id="list-' + k.kat + '"></div>' +
-      '<button class="add-produkt-btn" onclick="toggleAddForm(\'' + k.kat + '\')">' +
-        '<span>+</span> Eigenes Produkt hinzufügen' +
-      '</button>' +
-      '<div class="add-form" id="add-form-' + k.kat + '">' +
-        '<input type="text" class="f-name" placeholder="Produktname" id="new-name-' + k.kat + '">' +
-        '<input type="number" class="f-preis" placeholder="Preis €" step="0.05" id="new-preis-' + k.kat + '">' +
-        '<button class="add-form-btn" onclick="addProdukt(\'' + k.kat + '\')">Hinzufügen</button>' +
-      '</div>';
+
+    var header = document.createElement('div');
+    header.className = 'kategorie-header';
+    header.id = 'kh-' + katId;
+    header.innerHTML =
+      '<span class="kategorie-icon">' + k.icon + '</span>' +
+      '<span class="kategorie-name">' + k.kat + '</span>' +
+      '<span class="kategorie-count" id="count-' + katId + '">' + aktiveCount + ' aktiv</span>' +
+      '<span class="kategorie-pfeil">&#9660;</span>';
+    header.addEventListener('click', (function(kid) {
+      return function() { toggleKat(kid); };
+    })(katId));
+
+    var body = document.createElement('div');
+    body.className = 'kategorie-body';
+    body.id = 'kb-' + katId;
+
+    var list = document.createElement('div');
+    list.className = 'produkt-list';
+    list.id = 'list-' + k.kat;
+    body.appendChild(list);
+
+    var addBtn = document.createElement('button');
+    addBtn.className = 'add-produkt-btn';
+    addBtn.innerHTML = '<span>+</span> Eigenes Produkt hinzufügen';
+    addBtn.addEventListener('click', (function(kat) {
+      return function(e) { e.stopPropagation(); toggleAddForm(kat); };
+    })(k.kat));
+    body.appendChild(addBtn);
+
+    var addForm = document.createElement('div');
+    addForm.className = 'add-form';
+    addForm.id = 'add-form-' + k.kat;
+    addForm.innerHTML =
+      '<input type="text" class="f-name" placeholder="Produktname" id="new-name-' + k.kat + '">' +
+      '<input type="number" class="f-preis" placeholder="Preis \u20ac" step="0.05" id="new-preis-' + k.kat + '">';
+    var addFormBtn = document.createElement('button');
+    addFormBtn.className = 'add-form-btn';
+    addFormBtn.textContent = 'Hinzuf\u00fcgen';
+    addFormBtn.addEventListener('click', (function(kat) {
+      return function() { addProdukt(kat); };
+    })(k.kat));
+    addForm.appendChild(addFormBtn);
+    body.appendChild(addForm);
+
+    div.appendChild(header);
+    div.appendChild(body);
     container.appendChild(div);
 
     k.produkte.forEach(function(p) {
@@ -612,8 +670,16 @@ function updatePreis(id, val) {
 
 function updateKatCount(kat) {
   var count = Object.values(state).filter(function(s) { return s.kat === kat && s.aktiv; }).length;
-  var el = document.getElementById('count-' + kat);
+  var katId = kat.replace(/\s/g, '_');
+  var el = document.getElementById('count-' + katId);
   if (el) el.textContent = count + ' aktiv';
+}
+
+function toggleKat(katId) {
+  var header = document.getElementById('kh-' + katId);
+  var body   = document.getElementById('kb-' + katId);
+  if (header) header.classList.toggle('offen');
+  if (body)   body.classList.toggle('offen');
 }
 
 function toggleAddForm(kat) {
