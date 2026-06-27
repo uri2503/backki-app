@@ -201,6 +201,7 @@ async function laden(){
       '<div class="last-entry-text">Letzter Eintrag: <strong>'+tn[d.getDay()]+', '+d.getDate()+'.'+(d.getMonth()+1)+'.</strong></div>'+
       '<div class="last-entry-val">'+fmt(map[lt])+'</div>';
   }catch(e){leer();}
+  setTimeout(tourZeigen, 800);
 }
 function leer(){
   document.getElementById('stat-gestern').textContent='—';
@@ -212,7 +213,7 @@ function leer(){
   document.getElementById('last-entry').innerHTML='<span class="empty-hint-icon">👋</span><div class="empty-hint-text"><strong>Noch keine Einträge.</strong><br>Starten Sie mit der ersten Tageserfassung.</div>';
   document.getElementById('last-entry').className='empty-hint';
 }
-laden().then(function(){ setTimeout(tourZeigen, 800); });
+laden();
 
 // ── EINMALIGER TOUR-FLOW ──
 var TOUR_SCHRITTE = [
