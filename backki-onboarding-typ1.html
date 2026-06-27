@@ -318,37 +318,87 @@ nav {
 .risiko-box {
   background: var(--ink);
   border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 28px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
   text-align: center;
 }
 .risiko-label {
-  font-size: 11px; font-weight: 600;
+  font-size: 10px; font-weight: 600;
   text-transform: uppercase; letter-spacing: 2px;
-  color: rgba(255,255,255,0.4); margin-bottom: 8px;
+  color: rgba(255,255,255,0.4); margin-bottom: 6px;
 }
 .risiko-betrag {
   font-family: 'Fraunces', serif;
-  font-size: 52px; font-weight: 900;
+  font-size: 44px; font-weight: 900;
   color: var(--crust-l);
   line-height: 1;
 }
 .risiko-sub {
-  font-size: 13px; color: rgba(255,255,255,0.5);
-  margin-top: 8px;
+  font-size: 12px; color: rgba(255,255,255,0.4);
+  margin-top: 6px; margin-bottom: 14px;
 }
-.risiko-items {
-  margin-top: 20px;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.risiko-item {
+.risiko-kat-row {
   display: flex; justify-content: space-between;
-  font-size: 13px;
-  padding: 6px 0;
+  font-size: 12px;
+  padding: 5px 0;
   border-bottom: 1px solid rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.5);
 }
-.risiko-item-val { color: var(--crust-l); font-weight: 600; }
+.risiko-kat-row:last-child { border-bottom: none; }
+.risiko-kat-val { color: var(--crust-l); font-weight: 600; }
+
+/* SCHIEBEREGLER BOX */
+.slider-box {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.slider-label-row {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 10px;
+}
+.slider-label-text { font-size: 13px; color: var(--smoke); }
+.slider-pct {
+  font-family: 'Fraunces', serif;
+  font-size: 22px; font-weight: 900;
+  color: var(--crust);
+}
+input[type=range].ersparnis-slider {
+  width: 100%; accent-color: var(--crust);
+  height: 6px; cursor: pointer;
+  margin-bottom: 8px;
+}
+.slider-hint { font-size: 11px; color: var(--smoke); text-align: center; }
+
+/* NETTO-HIGHLIGHT */
+.netto-box {
+  background: var(--green-l);
+  border: 2px solid #B8E0C8;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.netto-row {
+  display: flex; justify-content: space-between;
+  align-items: center; font-size: 14px;
+}
+.netto-row-label { color: var(--smoke); }
+.netto-row-val { font-weight: 700; color: var(--ink); }
+.netto-row-val.red { color: var(--red); }
+.netto-row-val.green { color: var(--green); }
+.netto-divider { border: none; border-top: 1.5px solid #B8E0C8; margin: 4px 0; }
+.netto-result-row {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.netto-result-label { font-size: 14px; font-weight: 700; color: var(--green); }
+.netto-result-val {
+  font-family: 'Fraunces', serif;
+  font-size: 32px; font-weight: 900;
+  color: var(--green);
+}
 
 /* NAVIGATION BUTTONS */
 .btn-row {
@@ -467,34 +517,48 @@ nav {
   <div class="step" id="step-3">
     <p class="step-eyebrow">Schritt 3 von 3 · Ihr Potenzial</p>
     <h1 class="step-title">So viel können Sie einsparen.</h1>
-    <p class="step-sub">Bei einer durchschnittlichen Retourenquote von 15 % — und was BackKI realistisch einsparen kann.</p>
+    <p class="step-sub">Basierend auf Ihrem Sortiment — bei 15 % Retourenquote. Stellen Sie selbst ein, wie viel BackKI für Sie herausholen soll.</p>
 
+    <!-- Wegwurf-Risiko kompakt nach Kategorie -->
     <div class="risiko-box">
-      <div class="risiko-label">Ihr maximales Tages-Wegwurfrisiko</div>
+      <div class="risiko-label">Ihr Wegwurf pro Monat (Hochrechnung)</div>
       <div class="risiko-betrag" id="risiko-betrag">0 €</div>
-      <div class="risiko-sub">bei 15 % Retourenquote · nur für Ihre aktiven Produkte</div>
-      <div class="risiko-items" id="risiko-items"></div>
+      <div class="risiko-sub">26 Werktage × Tagesverlust bei 15 % Retourenquote</div>
+      <div id="risiko-kats"></div>
     </div>
 
-    <div style="background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:24px;">
-      <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--smoke);margin-bottom:14px;">Was BackKI für Sie bedeutet</div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;">
-        <span style="color:var(--smoke)">Wegwurf pro Monat (aktuell)</span>
-        <span style="font-weight:700;color:var(--red)" id="verlust-monat">0 €</span>
+    <!-- Schieberegler -->
+    <div class="slider-box">
+      <div class="slider-label-row">
+        <span class="slider-label-text">Wie viel davon spart BackKI ein?</span>
+        <span class="slider-pct" id="slider-pct">30 %</span>
       </div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;">
-        <span style="color:var(--smoke)">Einsparung mit BackKI (30 %)</span>
-        <span style="font-weight:700;color:var(--green)" id="einsparung">0 €</span>
+      <input type="range" class="ersparnis-slider" id="ersparnis-slider"
+        min="10" max="50" step="5" value="30"
+        oninput="updateSlider(this.value)">
+      <div class="slider-hint">Branchenüblich: 20–35 % · Realistisch für Ihren Start: 30 %</div>
+    </div>
+
+    <!-- Netto-Ergebnis -->
+    <div class="netto-box">
+      <div class="netto-row">
+        <span class="netto-row-label">Ihre Einsparung mit BackKI</span>
+        <span class="netto-row-val green" id="einsparung">0 €</span>
       </div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;">
-        <span style="color:var(--smoke)">BackKI kostet Sie monatlich</span>
-        <span style="font-weight:700;color:var(--ink)">29 € zzgl. MwSt.</span>
+      <div class="netto-row">
+        <span class="netto-row-label">BackKI monatlich</span>
+        <span class="netto-row-val red">− 29 €</span>
+      </div>
+      <hr class="netto-divider">
+      <div class="netto-result-row">
+        <span class="netto-result-label">Ihr Nettogewinn</span>
+        <span class="netto-result-val" id="netto-val">0 €</span>
       </div>
     </div>
 
     <div class="btn-row">
       <button class="btn-secondary" onclick="goStep(2)">← Zurück</button>
-      <button class="btn-primary" onclick="goSuccess()">Jetzt loslegen — Sortiment speichern ✓</button>
+      <button class="btn-primary" onclick="goSuccess()">Jetzt täglich erfassen →</button>
     </div>
   </div>
 
@@ -521,9 +585,9 @@ nav {
         </div>
       </div>
 
-      <button class="btn-primary" onclick="alert('→ Weiterleitung zum täglichen Erfassungstool')" style="max-width:400px;margin:0 auto;display:block;">
-        Jetzt erste Retouren erfassen →
-      </button>
+      <a href="tageserfassung.html" class="btn-primary" style="max-width:400px;margin:0 auto;display:block;text-align:center;text-decoration:none;">
+        Erste Retouren erfassen →
+      </a>
     </div>
   </div>
 
@@ -538,30 +602,26 @@ var SORTIMENT = [
     { name: 'Weißbrot', preis: 2.80 },
     { name: 'Bauernbrot', preis: 3.80 },
   ]},
-  { kat: 'Brötchen', icon: '🥖', produkte: [
+  { kat: 'Kleingebäck', icon: '🥖', produkte: [
     { name: 'Semmel', preis: 0.40 },
     { name: 'Vollkornbrötchen', preis: 0.55 },
     { name: 'Laugenbrötchen', preis: 0.60 },
+    { name: 'Laugenbrezel', preis: 0.75 },
+    { name: 'Butterbrezel', preis: 1.10 },
   ]},
   { kat: 'Belegte Brötchen', icon: '🥪', produkte: [
     { name: 'Käsebrötchen', preis: 2.50 },
     { name: 'Wurstbrötchen', preis: 2.80 },
     { name: 'Lachsbrötchen', preis: 3.50 },
   ]},
-  { kat: 'Kuchen', icon: '🎂', produkte: [
+  { kat: 'Kuchen & Süßes', icon: '🎂', produkte: [
     { name: 'Käsekuchen', preis: 2.80 },
     { name: 'Streuselkuchen', preis: 2.20 },
     { name: 'Schwarzwälder', preis: 3.20 },
     { name: 'Obstkuchen', preis: 2.60 },
-  ]},
-  { kat: 'Süße Stückle', icon: '🥐', produkte: [
     { name: 'Berliner', preis: 0.90 },
     { name: 'Croissant', preis: 1.20 },
     { name: 'Schnecke', preis: 1.10 },
-  ]},
-  { kat: 'Brezel', icon: '🥨', produkte: [
-    { name: 'Laugenbrezel', preis: 0.75 },
-    { name: 'Butterbrezel', preis: 1.10 },
   ]},
 ];
 
@@ -788,39 +848,54 @@ function updateBaseline(id, val) {
 }
 
 // ── STEP 3: RISIKO ──
+var monatsverlust = 0;
+
 function renderRisiko() {
-  var aktive = Object.values(state).filter(function(s) { return s.aktiv; });
   var tagesRisiko = 0;
-  var items = [];
 
-  aktive.forEach(function(s) {
-    var verlustStk = Math.round(s.baseline * 0.15);
-    var verlustEur = verlustStk * s.preis;
-    tagesRisiko += verlustEur;
-    if (verlustEur > 0) {
-      items.push({ name: s.name, verlust: verlustEur });
-    }
+  // Pro Kategorie summieren
+  var katSummen = {};
+  SORTIMENT.forEach(function(k) {
+    var sum = 0;
+    k.produkte.forEach(function(p) {
+      var s = state[k.kat + '_' + p.name];
+      if (!s || !s.aktiv) return;
+      sum += Math.round(s.baseline * 0.15) * s.preis;
+    });
+    if (sum > 0) katSummen[k.kat] = sum;
+    tagesRisiko += sum;
   });
 
-  items.sort(function(a, b) { return b.verlust - a.verlust; });
+  monatsverlust = tagesRisiko * 26;
+  document.getElementById('risiko-betrag').innerHTML =
+    fmt(monatsverlust) + ' <span style="font-size:18px;color:rgba(255,255,255,0.3)">/ Monat</span>';
 
-  document.getElementById('risiko-betrag').textContent = tagesRisiko.toFixed(2).replace('.', ',') + ' €';
-
-  var monat = tagesRisiko * 26; // 26 Werktage
-  var einsparung = monat * 0.30;
-  document.getElementById('verlust-monat').textContent = monat.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €';
-  document.getElementById('einsparung').textContent = einsparung.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €';
-
-  var itemsEl = document.getElementById('risiko-items');
-  itemsEl.innerHTML = '';
-  items.slice(0, 5).forEach(function(item) {
+  // Kategorien-Zeilen
+  var katsEl = document.getElementById('risiko-kats');
+  katsEl.innerHTML = '';
+  Object.keys(katSummen).forEach(function(kat) {
     var div = document.createElement('div');
-    div.className = 'risiko-item';
+    div.className = 'risiko-kat-row';
     div.innerHTML =
-      '<span>' + item.name + '</span>' +
-      '<span class="risiko-item-val">− ' + item.verlust.toFixed(2).replace('.', ',') + ' €/Tag</span>';
-    itemsEl.appendChild(div);
+      '<span>' + kat + '</span>' +
+      '<span class="risiko-kat-val">− ' + fmt(katSummen[kat] * 26) + '/Mo</span>';
+    katsEl.appendChild(div);
   });
+
+  updateSlider(document.getElementById('ersparnis-slider').value);
+}
+
+function fmt(n) {
+  return n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €';
+}
+
+function updateSlider(val) {
+  val = parseInt(val);
+  document.getElementById('slider-pct').textContent = val + ' %';
+  var einsparung = monatsverlust * (val / 100);
+  var netto = einsparung - 29;
+  document.getElementById('einsparung').textContent = fmt(einsparung);
+  document.getElementById('netto-val').textContent = fmt(Math.max(0, netto));
 }
 
 // ── NAVIGATION ──
