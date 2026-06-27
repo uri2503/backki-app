@@ -248,6 +248,24 @@ nav { background:rgba(26,18,10,0.97); padding:0 16px; height:48px; display:flex;
 <script>
 var SB_URL='https://ysqzdqazcgyuzdorauiq.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+
+// ── TRACKING ──
+function track(event, meta) {
+  var bid = localStorage.getItem('backki_baeckerei_id') || null;
+  try {
+    fetch(SB_URL + '/rest/v1/backki_events', {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ event: event, baeckerei_id: bid, meta: meta || {} })
+    });
+  } catch(e) {}  // Tracking darf nie crashen
+}
+
 function sbFetch(path,opts){return fetch(SB_URL+'/rest/v1/'+path,Object.assign({headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}},opts||{}));}
 
 // Kalender-State
@@ -280,6 +298,7 @@ async function ladeKalender(bid){
 }
 
 function zeigeKalender(){
+  track('kalender_open');
   document.getElementById('kal-overlay').classList.add('show');
   renderKalender();
 }
@@ -318,6 +337,7 @@ function kalMonat(delta){
 
 function waehleTag(datum){
   gewaehltesDatum=datum;
+  track('tageserfassung_datum_gewaehlt', {datum: datum, bereits_erfasst: erfassteTage[datum] !== undefined});
   document.getElementById('kal-overlay').classList.remove('show');
   // Datum im Header setzen
   var d=new Date(datum+'T12:00:00');
@@ -543,7 +563,8 @@ function updateTotals() {
   }
 }
 
-function alleNull() {
+function alleNull(){ track('alle_null_clicked', {datum: gewaehltesDatum || 'unbekannt'});
+return (function() {
   PRODUKTE.forEach(function(p) {
     retouren[p.name]=0;
     var inp = document.getElementById("val-"+p.name.replace(/\s/g,"_"));
@@ -603,6 +624,7 @@ async function speichern() {
       });
       // Kalender aktualisieren
       erfassteTage[datum]=gesamt;
+      track('tageserfassung_gespeichert', {datum: datum, verlust_eur: gesamt});
     }catch(e){ console.error('Speichern fehlgeschlagen:',e); }
   }
   document.getElementById("overlay").classList.add("show");
