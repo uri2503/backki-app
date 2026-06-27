@@ -294,9 +294,9 @@ function render() {
       btnM.addEventListener("click", (function(n) { return function() { step(n, -1); }; })(p.name));
 
       var inp = document.createElement("input");
-      inp.className = "pz-val"; inp.type = "number"; inp.min = "0"; inp.value = "0";
+      inp.className = "pz-val"; inp.type = "number"; inp.min = "0"; inp.value = "0"; inp.setAttribute("inputmode","numeric"); inp.setAttribute("autocomplete","off");
       inp.id = "val-" + pid;
-      inp.addEventListener("change", (function(n) { return function() { setVal(n, this.value); }; })(p.name));
+      inp.addEventListener("change", (function(n) { return function(e) { setVal(n, e.target.value); }; })(p.name));
 
       var btnP = document.createElement("button");
       btnP.className = "pz-btn"; btnP.textContent = "+";
