@@ -275,14 +275,25 @@ nav {
 }
 
 /* BASELINE STEP */
-.baseline-list { display: flex; flex-direction: column; gap: 10px; }
+.baseline-list { display: flex; flex-direction: column; gap: 8px; }
+.baseline-kat-body {
+  display: none;
+  background: var(--white);
+  border: 1.5px solid var(--crust);
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+.baseline-kat-body.offen { display: block; }
 .baseline-card {
   background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
   display: flex; align-items: center; gap: 12px;
 }
+.baseline-card:last-child { border-bottom: none; }
 .baseline-info { flex: 1; }
 .baseline-name { font-size: 14px; font-weight: 600; color: var(--ink); }
 .baseline-kat { font-size: 12px; color: var(--smoke); }
@@ -712,23 +723,63 @@ function addProdukt(kat) {
 function renderBaseline() {
   var list = document.getElementById('baseline-list');
   list.innerHTML = '';
-  var aktive = Object.values(state).filter(function(s) { return s.aktiv; });
 
-  aktive.forEach(function(s) {
-    var id = s.kat + '_' + s.name;
-    var card = document.createElement('div');
-    card.className = 'baseline-card';
-    card.innerHTML =
-      '<div class="baseline-info">' +
-        '<div class="baseline-name">' + s.name + '</div>' +
-        '<div class="baseline-kat">' + s.kat + '</div>' +
-      '</div>' +
-      '<div class="baseline-input-wrap">' +
-        '<input class="baseline-input" type="number" min="1" value="' + s.baseline + '" ' +
-          'onchange="updateBaseline(\'' + id + '\', this.value)">' +
-        '<span class="baseline-unit">Stück/Tag</span>' +
-      '</div>';
-    list.appendChild(card);
+  SORTIMENT.forEach(function(k) {
+    var aktive = k.produkte.filter(function(p) {
+      return state[k.kat + '_' + p.name] && state[k.kat + '_' + p.name].aktiv;
+    });
+    if (aktive.length === 0) return;
+
+    var katId = 'bl-' + k.kat.replace(/\s/g, '_');
+
+    // Header — gleicher Stil wie Schritt 1
+    var header = document.createElement('div');
+    header.className = 'kategorie-header';
+    header.id = 'kh-' + katId;
+    header.innerHTML =
+      '<span class="kategorie-icon">' + k.icon + '</span>' +
+      '<span class="kategorie-name">' + k.kat + '</span>' +
+      '<span class="kategorie-count">' + aktive.length + ' Produkte</span>' +
+      '<span class="kategorie-pfeil">&#9660;</span>';
+    header.addEventListener('click', (function(kid) {
+      return function() {
+        var h = document.getElementById('kh-' + kid);
+        var b = document.getElementById('kb-' + kid);
+        if (h) h.classList.toggle('offen');
+        if (b) b.classList.toggle('offen');
+      };
+    })(katId));
+
+    // Body
+    var body = document.createElement('div');
+    body.className = 'baseline-kat-body';
+    body.id = 'kb-' + katId;
+
+    aktive.forEach(function(p) {
+      var id = k.kat + '_' + p.name;
+      var s = state[id];
+      var card = document.createElement('div');
+      card.className = 'baseline-card';
+      card.innerHTML =
+        '<div class="baseline-info">' +
+          '<div class="baseline-name">' + p.name + '</div>' +
+        '</div>' +
+        '<div class="baseline-input-wrap">' +
+          '<input class="baseline-input" type="number" min="1" inputmode="numeric" autocomplete="off" value="' + s.baseline + '">' +
+          '<span class="baseline-unit">Stück/Tag</span>' +
+        '</div>';
+      // event statt onchange-inline
+      card.querySelector('.baseline-input').addEventListener('change', (function(sid) {
+        return function(e) { updateBaseline(sid, e.target.value); };
+      })(id));
+      body.appendChild(card);
+    });
+
+    var wrap = document.createElement('div');
+    wrap.className = 'kategorie';
+    wrap.appendChild(header);
+    wrap.appendChild(body);
+    list.appendChild(wrap);
   });
 }
 
