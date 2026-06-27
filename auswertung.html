@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BackKI – Auswertung</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1A120A;--crust:#B8722A;--crust-l:#D4903E;
+  --dough:#F9F3E8;--smoke:#7A6A58;--border:#E4D8C4;
+  --green:#2B6845;--green-l:#EBF5EF;--red:#A82820;--red-l:#FDECEA;
+  --white:#FFFFFF;
+}
+body{font-family:'Inter',sans-serif;background:var(--dough);color:var(--ink);min-height:100vh;}
+nav{background:rgba(26,18,10,0.97);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-back{font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;font-weight:500;}
+.nav-back:hover{color:#fff;}
+.nav-logo{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:#fff;}
+.nav-logo em{color:var(--crust);font-style:normal;}
+.container{max-width:480px;margin:0 auto;padding:16px 16px 40px;}
+
+/* SETUP OVERLAY */
+.setup-overlay{display:none;position:fixed;inset:0;background:rgba(26,18,10,.7);z-index:200;align-items:flex-end;justify-content:center;}
+.setup-overlay.show{display:flex;}
+.setup-sheet{background:var(--white);border-radius:20px 20px 0 0;padding:28px 24px 40px;max-width:480px;width:100%;}
+.setup-title{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--ink);margin-bottom:6px;}
+.setup-sub{font-size:13px;color:var(--smoke);margin-bottom:24px;line-height:1.5;}
+.setup-slider-wrap{margin-bottom:8px;}
+.setup-slider-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.setup-slider-label{font-size:13px;color:var(--smoke);}
+.setup-pct{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--crust);}
+input[type=range].setup-slider{width:100%;accent-color:var(--crust);margin-bottom:6px;}
+.setup-hint{font-size:11px;color:var(--smoke);text-align:center;margin-bottom:20px;}
+.setup-wareneinsatz{background:var(--dough);border-radius:10px;padding:12px 14px;margin-bottom:20px;}
+.setup-we-label{font-size:12px;color:var(--smoke);margin-bottom:6px;}
+.setup-we-row{display:flex;align-items:center;gap:10px;}
+.setup-we-input{width:60px;border:1.5px solid var(--border);border-radius:6px;padding:6px 8px;font-size:14px;font-weight:700;text-align:center;font-family:'Inter',sans-serif;color:var(--ink);}
+.setup-we-hint{font-size:11px;color:var(--smoke);}
+.setup-btn{width:100%;background:var(--crust);color:white;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* HEADER */
+.aw-header{background:var(--ink);border-radius:14px;padding:16px 18px;margin-bottom:14px;}
+.aw-header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.aw-title{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:#fff;line-height:1.2;}
+.aw-settings-btn{background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px 10px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;font-family:'Inter',sans-serif;}
+.aw-settings-btn:hover{color:#fff;}
+.aw-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.aw-kpi{background:rgba(255,255,255,.06);border-radius:10px;padding:12px 14px;}
+.aw-kpi-val{font-family:'Fraunces',serif;font-size:24px;font-weight:900;line-height:1;}
+.aw-kpi-val.red{color:#F87171;}
+.aw-kpi-val.amber{color:var(--crust-l);}
+.aw-kpi-val.green{color:#6EE7A0;}
+.aw-kpi-label{font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;text-transform:uppercase;letter-spacing:.8px;}
+.aw-kpi-sub{font-size:10px;color:rgba(255,255,255,.25);margin-top:2px;}
+
+/* MONATSVERLAUF */
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--smoke);margin-bottom:10px;}
+.kalender-wrap{display:flex;flex-direction:column;gap:4px;margin-bottom:18px;}
+.kal-tag-row{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;}
+.kal-tag-row.heute{border-color:var(--crust);}
+.kal-tag-row.schaetzung{border-style:dashed;background:var(--dough);}
+.kal-datum{font-size:12px;font-weight:600;color:var(--ink);width:80px;flex-shrink:0;}
+.kal-datum-sub{font-size:10px;color:var(--smoke);}
+.kal-bar-wrap{flex:1;}
+.kal-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:3px;}
+.kal-bar-fill{height:100%;border-radius:3px;background:var(--red);}
+.kal-bar-fill.gut{background:var(--green);}
+.kal-bar-fill.schaetz{background:var(--crust);opacity:.5;}
+.kal-quote{font-size:10px;color:var(--smoke);}
+.kal-verlust{font-size:13px;font-weight:700;color:var(--red);text-align:right;flex-shrink:0;min-width:56px;}
+.kal-verlust.gut{color:var(--green);}
+.kal-verlust.schaetz{color:var(--smoke);}
+.kal-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 6px;border-radius:6px;background:var(--dough);color:var(--smoke);margin-top:2px;display:inline-block;}
+.kal-badge.echt{background:var(--green-l);color:var(--green);}
+
+/* INSIGHTS */
+.insight-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;}
+.insight-icon{font-size:20px;flex-shrink:0;}
+.insight-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.insight-text{font-size:12px;color:var(--smoke);line-height:1.5;}
+.insight-val{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--crust);margin-top:4px;}
+
+.leer-hint{background:var(--white);border:1.5px dashed var(--border);border-radius:12px;padding:24px;text-align:center;color:var(--smoke);font-size:13px;line-height:1.6;}
+.leer-icon{font-size:32px;margin-bottom:8px;}
+
+.loading{text-align:center;padding:40px;color:var(--smoke);font-size:13px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-back">← Startseite</a>
+  <div class="nav-logo">Back<em>KI</em></div>
+  <div style="width:60px"></div>
+</nav>
+
+<!-- SETUP SHEET -->
+<div class="setup-overlay" id="setup-overlay">
+  <div class="setup-sheet">
+    <div class="setup-title">Kurze Frage für den Start</div>
+    <div class="setup-sub">Wie viel Prozent Ihrer produzierten Waren bleiben täglich übrig? BackKI verwendet diese Zahl bis echte Daten vorliegen.</div>
+    <div class="setup-slider-wrap">
+      <div class="setup-slider-row">
+        <span class="setup-slider-label">Retourenquote</span>
+        <span class="setup-pct" id="setup-pct">15 %</span>
+      </div>
+      <input type="range" class="setup-slider" id="setup-slider" min="5" max="35" step="1" value="15" oninput="document.getElementById('setup-pct').textContent=this.value+' %'">
+      <div class="setup-hint">Branchendurchschnitt: 12–18 % · Ihr Startwert kann jederzeit angepasst werden</div>
+    </div>
+    <div class="setup-wareneinsatz">
+      <div class="setup-we-label">Wareneinsatz (Gestehungskosten)</div>
+      <div class="setup-we-row">
+        <input type="number" class="setup-we-input" id="setup-we" value="35" min="20" max="60"> <span style="font-size:13px;color:var(--smoke)">% des Verkaufspreises</span>
+        <span class="setup-we-hint">— üblich: 30–40 %</span>
+      </div>
+    </div>
+    <button class="setup-btn" onclick="setupSpeichern()">Auswertung starten →</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="aw-content"><div class="loading">⏳ Laden…</div></div>
+</div>
+
+<script>
+var SB_URL='https://ysqzdqazcgyuzdorauiq.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+function sbFetch(p,o){return fetch(SB_URL+'/rest/v1/'+p,Object.assign({headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}},o||{}));}
+function fmt(n){return n.toFixed(2).replace('.',',')+' €';}
+function fmtK(n){return n>=1000?(n/1000).toFixed(1).replace('.',',')+' K':n.toFixed(0);}
+
+var bid = localStorage.getItem('backki_baeckerei_id');
+var retourenQuote = parseFloat(localStorage.getItem('backki_retouren_quote')||'0');
+var wareneinsatz  = parseFloat(localStorage.getItem('backki_wareneinsatz')||'0');
+
+// ── SETUP ──
+function setupSpeichern(){
+  var q = parseInt(document.getElementById('setup-slider').value);
+  var w = parseInt(document.getElementById('setup-we').value);
+  localStorage.setItem('backki_retouren_quote', q);
+  localStorage.setItem('backki_wareneinsatz', w);
+  retourenQuote = q;
+  wareneinsatz = w;
+  document.getElementById('setup-overlay').classList.remove('show');
+  ladeAuswertung();
+}
+
+// ── MAIN LOAD ──
+async function ladeAuswertung(){
+  if(!bid){ zeigeKeinAccount(); return; }
+  if(!retourenQuote){ document.getElementById('setup-overlay').classList.add('show'); return; }
+
+  try{
+    // Sortiment für Schätzung
+    var [resSortiment, resEintraege] = await Promise.all([
+      sbFetch('backki_sortiment?baeckerei_id=eq.'+bid+'&aktiv=eq.true&select=kategorie,name,preis,baseline'),
+      sbFetch('backki_tageseintraege?baeckerei_id=eq.'+bid+'&select=datum,produkt_name,menge,verlust_eur&order=datum.desc&limit=500')
+    ]);
+    var sortiment = await resSortiment.json();
+    var eintraege = await resEintraege.json();
+
+    sortiment = Array.isArray(sortiment)?sortiment:[];
+    eintraege = Array.isArray(eintraege)?eintraege:[];
+
+    // Tagesverlust aus echten Daten
+    var tageMap = {};
+    eintraege.forEach(function(e){
+      if(!tageMap[e.datum])tageMap[e.datum]=0;
+      tageMap[e.datum]+=parseFloat(e.verlust_eur||0);
+    });
+
+    // Schätzwert pro Tag aus Sortiment
+    var schaetzProTag = 0;
+    sortiment.forEach(function(p){
+      schaetzProTag += Math.round(p.baseline*(retourenQuote/100))*p.preis;
+    });
+    if(!schaetzProTag && sortiment.length===0) schaetzProTag = 30; // Fallback
+
+    renderAuswertung(tageMap, schaetzProTag, sortiment);
+
+  }catch(e){
+    document.getElementById('aw-content').innerHTML='<div class="leer-hint"><div class="leer-icon">⚠️</div>Fehler beim Laden. Bitte Seite neu laden.</div>';
+  }
+}
+
+function renderAuswertung(tageMap, schaetzProTag, sortiment){
+  var echteTag = Object.keys(tageMap);
+  var anzahlEcht = echteTag.length;
+
+  // Letzten 28 Tage aufbauen
+  var tage = [];
+  for(var i=0;i<28;i++){
+    var d=new Date(); d.setDate(d.getDate()-i);
+    var ds=d.toISOString().slice(0,10);
+    var istHeute=(i===0);
+    var verlust=tageMap[ds];
+    var istEcht=(verlust!==undefined);
+    tage.push({
+      datum:ds, d:d, istHeute:istHeute,
+      verlust: istEcht?verlust:schaetzProTag,
+      istEcht:istEcht, istSchaetzung:!istEcht
+    });
+  }
+
+  // KPIs
+  var gesamtVerlust=0, echt30=0, schaetz30=0, maxVerlust=0;
+  tage.forEach(function(t){
+    gesamtVerlust+=t.verlust;
+    if(t.istEcht)echt30+=t.verlust; else schaetz30+=t.verlust;
+    if(t.verlust>maxVerlust)maxVerlust=t.verlust;
+  });
+  var nettoVerlust = gesamtVerlust*(wareneinsatz/100);
+  var hochMonat = tage[0].istEcht ? (gesamtVerlust/Math.max(anzahlEcht,1)*22) : schaetzProTag*22;
+
+  // Trend — letzten 7 vs vorherige 7 Tage
+  var avg7=0,avg7v=0,n7=0,n7v=0;
+  tage.forEach(function(t,i){
+    if(i<7&&t.istEcht){avg7+=t.verlust;n7++;}
+    if(i>=7&&i<14&&t.istEcht){avg7v+=t.verlust;n7v++;}
+  });
+  var trend = (n7>0&&n7v>0) ? ((avg7/n7)-(avg7v/n7v)) : 0;
+
+  // HTML aufbauen
+  var wt=['So','Mo','Di','Mi','Do','Fr','Sa'];
+  var mn=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+  var html = '';
+
+  // Header mit KPIs
+  html += '<div class="aw-header">';
+  html += '<div class="aw-header-top">';
+  html += '<div class="aw-title">Ihre Auswertung</div>';
+  html += '<button class="aw-settings-btn" onclick="setupOeffnen()">⚙ Einstellungen</button>';
+  html += '</div>';
+  html += '<div class="aw-kpi-grid">';
+  html += '<div class="aw-kpi"><div class="aw-kpi-val red">'+fmt(gesamtVerlust)+'</div><div class="aw-kpi-label">Verlust 28 Tage</div><div class="aw-kpi-sub">'+(anzahlEcht>0?anzahlEcht+' echte, '+(28-anzahlEcht)+' geschätzt':'alle geschätzt')+'</div></div>';
+  html += '<div class="aw-kpi"><div class="aw-kpi-val amber">'+fmt(hochMonat)+'</div><div class="aw-kpi-label">Hochrechnung/Monat</div><div class="aw-kpi-sub">22 Werktage</div></div>';
+  html += '<div class="aw-kpi"><div class="aw-kpi-val '+(trend<=0?'green':'red')+'">'+fmt(Math.abs(schaetzProTag))+'</div><div class="aw-kpi-label">Verlust pro Tag</div><div class="aw-kpi-sub">Schätzwert</div></div>';
+  html += '<div class="aw-kpi"><div class="aw-kpi-val amber">'+fmt(nettoVerlust)+'</div><div class="aw-kpi-label">Netto-Verlust (WE)</div><div class="aw-kpi-sub">'+wareneinsatz+'% Wareneinsatz</div></div>';
+  html += '</div></div>';
+
+  // Insights
+  html += '<div class="section-title">Einschätzung</div>';
+
+  if(anzahlEcht===0){
+    html += '<div class="insight-card"><div class="insight-icon">📋</div><div><div class="insight-title">Schätzung aktiv</div><div class="insight-text">Noch keine echten Daten. BackKI rechnet mit '+retourenQuote+' % Retourenquote auf Ihr Sortiment. Täglich erfassen für präzisere Werte.</div></div></div>';
+  } else if(anzahlEcht<7){
+    html += '<div class="insight-card"><div class="insight-icon">📈</div><div><div class="insight-title">'+anzahlEcht+' von 7 Tagen erfasst</div><div class="insight-text">Noch '+(7-anzahlEcht)+' Tage bis zur ersten echten Wochenauswertung. Fehlende Tage werden mit '+retourenQuote+' % geschätzt.</div><div class="insight-val">'+fmt(schaetzProTag)+' /Tag (Schätzung)</div></div></div>';
+  } else {
+    var avgEcht=echt30/anzahlEcht;
+    html += '<div class="insight-card"><div class="insight-icon">✅</div><div><div class="insight-title">Echte Daten aktiv</div><div class="insight-text">Ø Tagesverlust aus '+anzahlEcht+' Einträgen.</div><div class="insight-val">'+fmt(avgEcht)+' /Tag (echt)</div></div></div>';
+    if(trend>0.5){
+      html += '<div class="insight-card"><div class="insight-icon">⚠️</div><div><div class="insight-title">Verlust steigt</div><div class="insight-text">Letzte 7 Tage im Schnitt '+fmt(trend)+' höher als die 7 Tage davor. Produktionsmengen prüfen.</div></div></div>';
+    } else if(trend<-0.5){
+      html += '<div class="insight-card"><div class="insight-icon">👍</div><div><div class="insight-title">Verlust sinkt</div><div class="insight-text">Letzte 7 Tage im Schnitt '+fmt(Math.abs(trend))+' niedriger als die 7 Tage davor. Weiter so!</div></div></div>';
+    }
+  }
+
+  // Kalender
+  html += '<div class="section-title" style="margin-top:4px">Monatsverlauf</div>';
+  html += '<div class="kalender-wrap">';
+  tage.forEach(function(t){
+    var barPct = maxVerlust>0?Math.round(t.verlust/maxVerlust*100):0;
+    var gutClass = t.verlust<schaetzProTag*0.7;
+    html += '<div class="kal-tag-row'+(t.istHeute?' heute':'')+(t.istSchaetzung?' schaetzung':'')+'">';
+    html += '<div><div class="kal-datum">'+wt[t.d.getDay()]+', '+t.d.getDate()+'. '+mn[t.d.getMonth()]+'</div>';
+    html += '<div style="margin-top:2px"><span class="kal-badge'+(t.istEcht?' echt':'')+'">'+( t.istEcht?'✓ erfasst':'~ Schätzung')+'</span></div></div>';
+    html += '<div class="kal-bar-wrap"><div class="kal-bar"><div class="kal-bar-fill'+(gutClass?' gut':'')+(t.istSchaetzung?' schaetz':'')+'" style="width:'+barPct+'%"></div></div>';
+    html += '<div class="kal-quote">'+(t.istEcht?'Retourenquote aus Erfassung':'Geschätzt: '+retourenQuote+' %')+'</div></div>';
+    html += '<div class="kal-verlust'+(gutClass?' gut':'')+(t.istSchaetzung?' schaetz':'')+'">'+fmt(t.verlust)+'</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  document.getElementById('aw-content').innerHTML = html;
+}
+
+function setupOeffnen(){
+  document.getElementById('setup-slider').value = retourenQuote||15;
+  document.getElementById('setup-pct').textContent = (retourenQuote||15)+' %';
+  document.getElementById('setup-we').value = wareneinsatz||35;
+  document.getElementById('setup-overlay').classList.add('show');
+}
+
+function zeigeKeinAccount(){
+  document.getElementById('aw-content').innerHTML =
+    '<div class="leer-hint"><div class="leer-icon">🔑</div>Kein BackKI-Konto gefunden.<br>Bitte zuerst das <a href="backki-onboarding-typ1.html" style="color:var(--crust)">Sortiment einrichten</a>.</div>';
+}
+
+ladeAuswertung();
+</script>
+</body>
+</html>
