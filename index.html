@@ -162,7 +162,7 @@ main {
 }
 .mini-stats {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 0;
 }
 .mini-stat {
@@ -182,6 +182,32 @@ main {
 .mini-stat-val.red    { color: #F87171; }
 .mini-stat-val.week   { color: rgba(255,255,255,0.7); }
 
+.progress-wrap {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.progress-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.progress-label {
+  font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 500;
+}
+.progress-pct {
+  font-size: 11px; font-weight: 700; color: var(--crust-l);
+}
+.progress-bar {
+  height: 6px; background: rgba(255,255,255,0.08);
+  border-radius: 3px; overflow: hidden; margin-bottom: 6px;
+}
+.progress-fill {
+  height: 100%; background: var(--crust);
+  border-radius: 3px; transition: width 0.6s ease;
+}
+.progress-hint {
+  font-size: 11px; color: rgba(255,255,255,0.3); line-height: 1.4;
+}
 .mini-stat-label {
   font-size: 10px; color: rgba(255,255,255,0.3);
   font-weight: 500; line-height: 1.3;
@@ -280,17 +306,23 @@ main {
     <div class="mini-dash-title">Meine Zahlen</div>
     <div class="mini-stats">
       <div class="mini-stat">
-        <div class="mini-stat-val streak" id="stat-streak">5 🔥</div>
-        <div class="mini-stat-label">Tage in Folge</div>
-      </div>
-      <div class="mini-stat">
         <div class="mini-stat-val red" id="stat-gestern">22,80 €</div>
         <div class="mini-stat-label">Verlust gestern</div>
       </div>
-      <div class="mini-stat">
+      <div class="mini-stat last">
         <div class="mini-stat-val week" id="stat-woche">75 €</div>
         <div class="mini-stat-label">Diese Woche</div>
       </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="progress-label" id="progress-label">5 von 28 Tagen — BackKI wird präziser</span>
+        <span class="progress-pct" id="progress-pct">18%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:18%"></div>
+      </div>
+      <div class="progress-hint" id="progress-hint">BackKI lernt Ihr Sortiment kennen. Weiter so!</div>
     </div>
   </div>
 
@@ -313,6 +345,22 @@ function getGreeting() {
   return 'Guten Abend';
 }
 document.getElementById('greeting-time').textContent = getGreeting();
+
+// Fortschrittsbalken berechnen
+var tage = 5; // Demo — später aus Supabase
+var ziel = 28;
+var pct  = Math.min(Math.round(tage / ziel * 100), 100);
+
+document.getElementById('progress-fill').style.width = pct + '%';
+document.getElementById('progress-pct').textContent = pct + '%';
+document.getElementById('progress-label').textContent = tage + ' von ' + ziel + ' Tagen — BackKI wird präziser';
+
+var hint = '';
+if (tage < 7)       hint = 'BackKI lernt Ihr Sortiment kennen. Weiter so!';
+else if (tage < 14) hint = 'Erste Muster erkannt — noch ' + (14 - tage) + ' Tage bis zur ersten Auswertung.';
+else if (tage < 28) hint = 'Fast da — noch ' + (ziel - tage) + ' Tage bis zur ersten KI-Empfehlung.';
+else                hint = '✅ BackKI ist vollständig kalibriert. Ihre Empfehlungen sind aktiv!';
+document.getElementById('progress-hint').textContent = hint;
 
 // TODO: Supabase-Daten laden
 // Wenn keine Daten vorhanden → Leer-Zustand zeigen
