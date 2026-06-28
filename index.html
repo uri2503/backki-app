@@ -169,7 +169,11 @@ async function laden(){
   var name=localStorage.getItem('backki_baeckerei_name')||'Meine Bäckerei';
   document.getElementById('nav-user').textContent=name;
   document.getElementById('greeting-name').textContent=name+'.';
-  if(!bid){leer();return;}
+  if(!bid){
+    // Kein Konto — direkt zu Onboarding umleiten
+    window.location.href = 'backki-onboarding-typ1.html';
+    return;
+  }
   try{
     var seit=new Date();seit.setDate(seit.getDate()-35);
     var res=await sbFetch('backki_tageseintraege?baeckerei_id=eq.'+bid+'&datum=gte.'+seit.toISOString().slice(0,10)+'&select=datum,verlust_eur&order=datum.desc');
