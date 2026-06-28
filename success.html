@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BackKI – Zahlung bestätigt</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,900;1,9..144,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1A120A;--crust:#B8722A;--crust-l:#D4903E;
+  --dough:#F9F3E8;--cream:#FDFAF4;--smoke:#7A6A58;
+  --border:#E4D8C4;--green:#2B6845;--green-l:#EBF5EF;
+}
+html,body{min-height:100vh;font-family:'Inter',sans-serif;background:var(--ink);color:#fff;}
+
+/* NAV */
+nav{
+  background:rgba(26,18,10,0.97);
+  border-bottom:1px solid rgba(184,114,42,0.2);
+  padding:14px 32px;
+  display:flex;align-items:center;
+}
+.nav-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px;}
+.nav-logo em{color:var(--crust);font-style:normal;}
+
+/* MAIN */
+.wrap{
+  max-width:560px;margin:0 auto;
+  padding:60px 24px 80px;
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;gap:0;
+}
+
+/* CHECK ANIMATION */
+.check-circle{
+  width:80px;height:80px;border-radius:50%;
+  background:rgba(43,104,69,0.15);
+  border:2px solid rgba(43,104,69,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;
+  margin-bottom:28px;
+  animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* HEADLINE */
+.eyebrow{
+  font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:2px;color:var(--crust);margin-bottom:12px;
+}
+h1{
+  font-family:'Fraunces',serif;font-size:clamp(28px,5vw,40px);
+  font-weight:900;line-height:1.1;color:#fff;margin-bottom:14px;
+}
+h1 em{color:var(--crust);font-style:italic;}
+.sub{
+  font-size:15px;color:rgba(255,255,255,0.5);
+  line-height:1.7;max-width:420px;margin-bottom:40px;
+}
+
+/* STEPS CARD */
+.steps-card{
+  width:100%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(184,114,42,0.25);
+  border-radius:16px;
+  padding:28px 24px;
+  text-align:left;
+  margin-bottom:24px;
+}
+.steps-card-title{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--crust);margin-bottom:20px;
+}
+.step{
+  display:flex;gap:16px;align-items:flex-start;
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.step:last-child{border-bottom:none;padding-bottom:0;}
+.step:first-of-type{padding-top:0;}
+.step-num{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(184,114,42,0.15);
+  border:1.5px solid rgba(184,114,42,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:var(--crust);
+  flex-shrink:0;margin-top:1px;
+}
+.step-body{}
+.step-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
+.step-sub{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;}
+
+/* UPLOAD AREA */
+.upload-box{
+  width:100%;
+  background:rgba(255,255,255,0.03);
+  border:1.5px dashed rgba(184,114,42,0.4);
+  border-radius:12px;
+  padding:28px 20px;
+  text-align:center;
+  cursor:pointer;
+  transition:background .2s,border-color .2s;
+  margin-bottom:16px;
+  position:relative;
+}
+.upload-box:hover{background:rgba(184,114,42,0.05);border-color:rgba(184,114,42,0.7);}
+.upload-box input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.upload-icon{font-size:32px;margin-bottom:10px;}
+.upload-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;}
+.upload-sub{font-size:12px;color:rgba(255,255,255,0.35);}
+.upload-formats{
+  display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap;
+}
+.fmt-tag{
+  font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;
+  background:rgba(184,114,42,0.12);color:var(--crust-l);
+  border:1px solid rgba(184,114,42,0.2);
+}
+
+/* UPLOAD STATUS */
+#upload-status{display:none;margin-bottom:16px;}
+.status-ok{
+  background:rgba(43,104,69,0.12);border:1.5px solid rgba(43,104,69,0.3);
+  border-radius:10px;padding:14px 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.status-ok-icon{font-size:18px;}
+.status-ok-text{font-size:13px;color:#6EE7A0;font-weight:600;}
+
+/* DIVIDER */
+.or-row{
+  display:flex;align-items:center;gap:12px;margin:4px 0 16px;width:100%;
+}
+.or-line{flex:1;height:1px;background:rgba(255,255,255,0.08);}
+.or-text{font-size:11px;color:rgba(255,255,255,0.25);font-weight:600;white-space:nowrap;}
+
+/* MAIL OPTION */
+.mail-box{
+  width:100%;
+  background:rgba(255,255,255,0.03);
+  border:1.5px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:18px 20px;
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:32px;
+  text-align:left;
+}
+.mail-icon{font-size:24px;flex-shrink:0;}
+.mail-body{}
+.mail-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;}
+.mail-addr{font-size:14px;font-weight:700;color:var(--crust-l);}
+.mail-sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;line-height:1.4;}
+
+/* GUARANTEE */
+.guarantee{
+  display:flex;gap:10px;align-items:flex-start;
+  background:rgba(43,104,69,0.08);
+  border:1px solid rgba(43,104,69,0.2);
+  border-radius:10px;padding:14px 16px;
+  margin-bottom:32px;width:100%;text-align:left;
+}
+.guarantee-icon{font-size:20px;flex-shrink:0;}
+.guarantee-text{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;}
+.guarantee-text strong{color:#6EE7A0;font-weight:700;}
+
+/* FOOTER NOTE */
+.footer-note{
+  font-size:12px;color:rgba(255,255,255,0.2);
+  line-height:1.6;
+}
+.footer-note a{color:rgba(184,114,42,0.7);text-decoration:none;}
+.footer-note a:hover{color:var(--crust);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Back<em>KI</em></div>
+</nav>
+
+<div class="wrap">
+
+  <div class="check-circle">✓</div>
+
+  <div class="eyebrow">Zahlung bestätigt</div>
+  <h1>Ihr Report<br>ist <em>unterwegs.</em></h1>
+  <p class="sub">Vielen Dank für Ihre Bestellung. Jetzt fehlt nur noch Ihr Kassenbericht — dann erstellen wir Ihre persönliche Analyse innerhalb von 24 Stunden.</p>
+
+  <!-- SCHRITTE -->
+  <div class="steps-card">
+    <div class="steps-card-title">So geht es weiter</div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Kassenbericht senden</div>
+        <div class="step-sub">Laden Sie Ihren monatlichen Kassenbericht hoch (CSV oder Excel) — oder senden Sie ihn per E-Mail an uns. Den Bericht erhalten Sie von Ihrem Kassensystem oder Steuerberater.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Analyse in 24 Stunden</div>
+        <div class="step-sub">Wir werten Ihre Daten mit BackKI aus und erstellen Ihren persönlichen Verlust-Report — mit konkreten Zahlen zu Ihrem Betrieb.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Report per E-Mail erhalten</div>
+        <div class="step-sub">Sie erhalten Ihren Report direkt in Ihr Postfach — übersichtlich, verständlich, sofort nutzbar.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="upload-box" id="upload-box">
+    <input type="file" id="file-input" accept=".csv,.xlsx,.xls,.pdf" onchange="handleUpload(this)">
+    <div class="upload-icon">📂</div>
+    <div class="upload-title">Kassenbericht hier hochladen</div>
+    <div class="upload-sub">Datei auswählen oder hierher ziehen</div>
+    <div class="upload-formats">
+      <span class="fmt-tag">CSV</span>
+      <span class="fmt-tag">Excel</span>
+      <span class="fmt-tag">PDF</span>
+    </div>
+  </div>
+
+  <div id="upload-status">
+    <div class="status-ok">
+      <div class="status-ok-icon">✅</div>
+      <div class="status-ok-text" id="status-text">Datei empfangen — wir melden uns binnen 24 Stunden.</div>
+    </div>
+  </div>
+
+  <div class="or-row">
+    <div class="or-line"></div>
+    <div class="or-text">ODER PER E-MAIL</div>
+    <div class="or-line"></div>
+  </div>
+
+  <!-- MAIL OPTION -->
+  <div class="mail-box">
+    <div class="mail-icon">✉️</div>
+    <div class="mail-body">
+      <div class="mail-title">Kassenbericht per E-Mail senden</div>
+      <div class="mail-addr">report@backki-app.de</div>
+      <div class="mail-sub">Betreff: Mein Kassenbericht + Ihr Name.<br>Wir helfen bei Fragen zum Export.</div>
+    </div>
+  </div>
+
+  <!-- GARANTIE -->
+  <div class="guarantee">
+    <div class="guarantee-icon">🛡️</div>
+    <div class="guarantee-text">
+      <strong>24-Stunden-Garantie:</strong> Ihr Report ist innerhalb von 24 Stunden nach Eingang Ihrer Daten in Ihrem Postfach — oder Sie erhalten Ihr Geld zurück. Kein Abo. Keine weiteren Kosten.
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Fragen? Schreiben Sie uns: <a href="mailto:report@backki-app.de">report@backki-app.de</a><br>
+    © 2026 BackKI · Ein Produkt der rc-digital.de, Wernau
+  </div>
+
+</div>
+
+<script>
+// Drag & Drop
+var box = document.getElementById('upload-box');
+box.addEventListener('dragover', function(e) {
+  e.preventDefault();
+  box.style.borderColor = 'rgba(184,114,42,0.9)';
+  box.style.background = 'rgba(184,114,42,0.08)';
+});
+box.addEventListener('dragleave', function() {
+  box.style.borderColor = '';
+  box.style.background = '';
+});
+box.addEventListener('drop', function(e) {
+  e.preventDefault();
+  var files = e.dataTransfer.files;
+  if (files.length) handleUpload({ files: files });
+});
+
+function handleUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+
+  // Dateiname anzeigen
+  var statusEl = document.getElementById('upload-status');
+  var textEl   = document.getElementById('status-text');
+  textEl.textContent = '✅ "' + file.name + '" empfangen — wir melden uns binnen 24 Stunden.';
+  statusEl.style.display = 'block';
+
+  // Upload-Box ausblenden
+  box.style.display = 'none';
+
+  // Supabase Storage Upload
+  var SUPA_URL = 'https://ysqzdqazcgyuzdorauiq.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+
+  var ts       = Date.now();
+  var safeName = ts + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  var path     = 'uploads/' + safeName;
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', SUPA_URL + '/storage/v1/object/backki-berichte/' + path, true);
+  xhr.setRequestHeader('apikey', SUPA_KEY);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + SUPA_KEY);
+  xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+  xhr.setRequestHeader('x-upsert', 'true');
+  xhr.onload = function() {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      console.log('Upload OK:', path);
+    } else {
+      // Upload fehlgeschlagen — Mail-Hinweis trotzdem sichtbar, kein Alert
+      console.warn('Upload Status:', xhr.status, xhr.responseText);
+    }
+  };
+  xhr.onerror = function() { console.warn('Upload Netzwerkfehler'); };
+  xhr.send(file);
+}
+</script>
+</body>
+</html>
