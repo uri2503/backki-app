@@ -965,8 +965,10 @@ async function goSuccess() {
   btn.disabled = true;
 
   try {
-    // 1. Bäckerei anlegen
-    var baeckName = localStorage.getItem('backki_baeckerei_name') || 'Meine Bäckerei';
+    // 1. Bäckerei anlegen — Name aus Eingabefeld
+    var nameInput = document.getElementById('baeckerei-name-input');
+    var baeckName = (nameInput && nameInput.value.trim()) || localStorage.getItem('backki_baeckerei_name') || 'Meine Bäckerei';
+    localStorage.setItem('backki_baeckerei_name', baeckName);
     var resB = await sbFetch('backki_baeckereien', {
       method: 'POST',
       body: JSON.stringify({ name: baeckName })
