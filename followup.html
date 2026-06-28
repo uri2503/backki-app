@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BackKI – Kurzes Feedback</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,900;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1A120A;--crust:#B8722A;--crust-l:#D4903E;
+  --smoke:rgba(255,255,255,.45);--border:rgba(184,114,42,.2);
+}
+html,body{min-height:100vh;font-family:'Inter',sans-serif;background:var(--ink);color:#fff;}
+
+nav{
+  background:rgba(26,18,10,.97);border-bottom:1px solid var(--border);
+  padding:14px 32px;display:flex;align-items:center;
+}
+.nav-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:#fff;}
+.nav-logo em{color:var(--crust);font-style:normal;}
+
+.wrap{max-width:520px;margin:0 auto;padding:52px 24px 80px;}
+
+/* HEADER */
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--crust);margin-bottom:10px;}
+h1{font-family:'Fraunces',serif;font-size:clamp(26px,5vw,36px);font-weight:900;line-height:1.15;margin-bottom:10px;}
+h1 em{color:var(--crust);font-style:italic;}
+.intro{font-size:14px;color:var(--smoke);line-height:1.7;margin-bottom:40px;}
+
+/* QUESTION BLOCK */
+.q-block{margin-bottom:32px;}
+.q-label{
+  font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--crust);margin-bottom:8px;
+}
+.q-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:18px;line-height:1.4;}
+
+/* CHOICE CARDS */
+.choices{display:flex;flex-direction:column;gap:10px;}
+.choice{
+  display:flex;align-items:flex-start;gap:14px;
+  background:rgba(255,255,255,.03);
+  border:1.5px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:14px 16px;
+  cursor:pointer;transition:all .15s;
+  text-align:left;width:100%;
+}
+.choice:hover{border-color:rgba(184,114,42,.5);background:rgba(184,114,42,.05);}
+.choice.selected{border-color:var(--crust);background:rgba(184,114,42,.1);}
+.choice.selected .choice-check{background:var(--crust);border-color:var(--crust);color:#fff;}
+.choice-check{
+  width:22px;height:22px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;
+  transition:all .15s;
+}
+.choice-body{}
+.choice-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;}
+.choice-sub{font-size:12px;color:var(--smoke);line-height:1.5;}
+
+/* EINWAND AUSWAHL */
+#einwand-wrap{
+  display:none;margin-top:12px;
+  background:rgba(224,90,74,.06);
+  border:1px solid rgba(224,90,74,.2);
+  border-radius:10px;padding:14px 16px;
+}
+#einwand-wrap .q-label{color:rgba(224,90,74,.8);margin-bottom:10px;}
+.einwand-opts{display:flex;flex-direction:column;gap:8px;}
+.einwand-opt{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;color:rgba(255,255,255,.7);
+  cursor:pointer;padding:6px 0;
+}
+.einwand-opt input[type=radio]{accent-color:var(--crust);width:16px;height:16px;flex-shrink:0;}
+.einwand-opt:hover{color:#fff;}
+
+/* DIVIDER */
+.divider{height:1px;background:rgba(255,255,255,.07);margin:8px 0 32px;}
+
+/* NOTIZ */
+.notiz-wrap{margin-top:16px;}
+.notiz-label{font-size:12px;color:var(--smoke);margin-bottom:8px;}
+textarea{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:10px;padding:12px 14px;
+  color:#fff;font-family:'Inter',sans-serif;font-size:13px;
+  resize:vertical;min-height:80px;outline:none;
+  transition:border-color .2s;
+}
+textarea:focus{border-color:rgba(184,114,42,.6);}
+textarea::placeholder{color:rgba(255,255,255,.2);}
+
+/* SUBMIT */
+.btn-submit{
+  width:100%;margin-top:28px;
+  background:var(--crust);color:#fff;border:none;
+  border-radius:12px;padding:16px;
+  font-size:15px;font-weight:700;cursor:pointer;
+  transition:background .2s,transform .15s;
+  font-family:'Inter',sans-serif;
+}
+.btn-submit:hover{background:var(--crust-l);transform:translateY(-1px);}
+.btn-submit:disabled{background:rgba(255,255,255,.1);color:rgba(255,255,255,.3);cursor:not-allowed;transform:none;}
+
+/* SUCCESS STATE */
+#success-state{display:none;text-align:center;padding:60px 0;}
+.success-icon{font-size:56px;margin-bottom:20px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+#success-state h2{font-family:'Fraunces',serif;font-size:28px;font-weight:900;margin-bottom:10px;}
+#success-state p{font-size:14px;color:var(--smoke);line-height:1.7;}
+
+/* ERROR */
+.error-msg{font-size:12px;color:#F87171;margin-top:8px;display:none;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Back<em>KI</em></div>
+</nav>
+
+<div class="wrap" id="form-wrap">
+
+  <div class="eyebrow">Ihr Feedback</div>
+  <h1>Wie war<br>Ihr <em>Report?</em></h1>
+  <p class="intro">
+    Zwei kurze Fragen — dauert 60 Sekunden.<br>
+    Ihre Antwort hilft uns, BackKI besser zu machen.
+  </p>
+
+  <!-- FRAGE 1 -->
+  <div class="q-block">
+    <div class="q-label">Frage 1 von 2</div>
+    <div class="q-title">Können Sie sich BackKI in Ihrer Bäckerei vorstellen?</div>
+
+    <div class="choices" id="choices-f1">
+
+      <button class="choice" onclick="selectF1('bestellen', this)">
+        <div class="choice-check">✓</div>
+        <div class="choice-body">
+          <div class="choice-title">Ja — ich möchte BackKI bestellen</div>
+          <div class="choice-sub">29 € / Monat · Kündigung monatlich · Setup in 10 Minuten. Wir melden uns innerhalb von 24 Stunden mit allen Details.</div>
+        </div>
+      </button>
+
+      <button class="choice" onclick="selectF1('unschlüssig', this)">
+        <div class="choice-check">?</div>
+        <div class="choice-body">
+          <div class="choice-title">Ich bin noch unschlüssig</div>
+          <div class="choice-sub">Wir melden uns persönlich — beantworten Ihre Fragen und zeigen Ihnen BackKI live in Ihrer Bäckerei.</div>
+        </div>
+      </button>
+
+      <button class="choice" onclick="selectF1('nein', this)">
+        <div class="choice-check">—</div>
+        <div class="choice-body">
+          <div class="choice-title">Nein, im Moment nicht</div>
+          <div class="choice-sub">Kein Problem. Was hat Sie zurückgehalten? (Optional)</div>
+        </div>
+      </button>
+
+    </div>
+
+    <!-- EINWAND (nur bei Nein) -->
+    <div id="einwand-wrap">
+      <div class="q-label">Was hat Sie zurückgehalten?</div>
+      <div class="einwand-opts">
+        <label class="einwand-opt"><input type="radio" name="einwand" value="preis"> Preis zu hoch für meinen Betrieb</label>
+        <label class="einwand-opt"><input type="radio" name="einwand" value="aufwand"> Tägliche Erfassung zu aufwändig</label>
+        <label class="einwand-opt"><input type="radio" name="einwand" value="nutzen"> Nutzen nicht klar genug</label>
+        <label class="einwand-opt"><input type="radio" name="einwand" value="technik"> Technisch zu kompliziert</label>
+        <label class="einwand-opt"><input type="radio" name="einwand" value="timing"> Falscher Zeitpunkt</label>
+        <label class="einwand-opt"><input type="radio" name="einwand" value="anderes"> Anderer Grund</label>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FRAGE 2 -->
+  <div class="q-block">
+    <div class="q-label">Frage 2 von 2</div>
+    <div class="q-title">Würden Sie BackKI einem Bäckerkollegen empfehlen?</div>
+
+    <div class="choices" id="choices-f2">
+
+      <button class="choice" onclick="selectF2('ja', this)">
+        <div class="choice-check">✓</div>
+        <div class="choice-body">
+          <div class="choice-title">Ja, auf jeden Fall</div>
+          <div class="choice-sub">Ich kenne Kollegen, denen BackKI helfen würde.</div>
+        </div>
+      </button>
+
+      <button class="choice" onclick="selectF2('vielleicht', this)">
+        <div class="choice-check">~</div>
+        <div class="choice-body">
+          <div class="choice-title">Vielleicht — kommt auf den Kollegen an</div>
+          <div class="choice-sub">Für bestimmte Betriebe könnte es passen.</div>
+        </div>
+      </button>
+
+      <button class="choice" onclick="selectF2('nein', this)">
+        <div class="choice-check">—</div>
+        <div class="choice-body">
+          <div class="choice-title">Eher nicht</div>
+          <div class="choice-sub">Im Moment würde ich es nicht aktiv empfehlen.</div>
+        </div>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- NOTIZ -->
+  <div class="notiz-wrap">
+    <div class="notiz-label">Möchten Sie uns noch etwas mitteilen? (Optional)</div>
+    <textarea id="notiz" placeholder="Ihr Feedback, Wünsche, Anmerkungen…"></textarea>
+  </div>
+
+  <div class="error-msg" id="error-msg">Bitte beantworten Sie beide Fragen.</div>
+
+  <button class="btn-submit" id="btn-submit" onclick="submit()">Feedback absenden</button>
+
+</div>
+
+<!-- SUCCESS -->
+<div id="success-state" class="wrap">
+  <div class="success-icon">🙏</div>
+  <h2>Vielen Dank!</h2>
+  <p>Ihr Feedback ist angekommen.<br>
+  Wir melden uns innerhalb von 24 Stunden — versprochen.</p>
+</div>
+
+<script>
+var SUPA_URL = 'https://ysqzdqazcgyuzdorauiq.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+
+var f1 = null;
+var f2 = null;
+
+// URL-Parameter auslesen (email, name aus Follow-up Link)
+var params = new URLSearchParams(window.location.search);
+var emailParam = params.get('email') || '';
+var nameParam  = params.get('name')  || '';
+
+function selectF1(val, el) {
+  f1 = val;
+  document.querySelectorAll('#choices-f1 .choice').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('einwand-wrap').style.display = val === 'nein' ? 'block' : 'none';
+  document.getElementById('error-msg').style.display = 'none';
+}
+
+function selectF2(val, el) {
+  f2 = val;
+  document.querySelectorAll('#choices-f2 .choice').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('error-msg').style.display = 'none';
+}
+
+function submit() {
+  if (!f1 || !f2) {
+    document.getElementById('error-msg').style.display = 'block';
+    return;
+  }
+
+  var einwand = '';
+  if (f1 === 'nein') {
+    var checked = document.querySelector('input[name=einwand]:checked');
+    einwand = checked ? checked.value : '';
+  }
+
+  var btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Wird gesendet…';
+
+  var payload = {
+    email:            emailParam,
+    name:             nameParam,
+    frage1:           f1,
+    frage1_einwand:   einwand,
+    frage2_empfehlung: f2,
+    notiz:            document.getElementById('notiz').value
+  };
+
+  fetch(SUPA_URL + '/rest/v1/backki_followup', {
+    method: 'POST',
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r) {
+    if (r.ok) {
+      document.getElementById('form-wrap').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Feedback absenden';
+      alert('Fehler beim Senden. Bitte versuchen Sie es nochmal.');
+    }
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Feedback absenden';
+  });
+}
+</script>
+</body>
+</html>
