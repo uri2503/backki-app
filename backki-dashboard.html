@@ -107,6 +107,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
   <button class="tab-btn active" onclick="showTab(this,'leads')">📋 Leads &amp; Sales</button>
   <button class="tab-btn" onclick="showTab(this,'baeckereien')">🏪 Aktive Bäckereien</button>
   <button class="tab-btn" onclick="showTab(this,'behaviour')">📊 User Behaviour</button>
+  <button class="tab-btn" onclick="showTab(this,'einreichungen')">📂 Einreichungen</button>
 </div>
 
 <div class="main">
@@ -164,6 +165,23 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
   </div>
 </div>
 
+<!-- ══ TAB 4: EINREICHUNGEN ══ -->
+<div class="tab-panel" id="tab-einreichungen">
+  <div class="kpi-grid-4">
+    <div class="kpi c-blue"><div class="kpi-label">Eingänge gesamt</div><div class="kpi-val" id="k-ein-total">–</div><div class="kpi-sub">Kassenberichte</div></div>
+    <div class="kpi c-red"><div class="kpi-label">Offen</div><div class="kpi-val red" id="k-ein-offen">–</div><div class="kpi-sub">Report noch ausstehend</div></div>
+    <div class="kpi c-green"><div class="kpi-label">Erledigt</div><div class="kpi-val green" id="k-ein-done">–</div><div class="kpi-sub">Report versendet</div></div>
+    <div class="kpi c-amber"><div class="kpi-label">Heute neu</div><div class="kpi-val amber" id="k-ein-heute">–</div><div class="kpi-sub">Eingänge heute</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title">📂 Eingereichte Kassenberichte</div>
+      <div class="panel-count" id="ein-count">–</div>
+    </div>
+    <div id="ein-wrap"><div class="loading"><div class="spinner"></div> Lade Dateien…</div></div>
+  </div>
+</div>
+
 </div><!-- /main -->
 
 <script>
@@ -203,6 +221,61 @@ function loadAll(){
     renderLeads(); renderBaeckereien(); renderBehaviour();
     document.getElementById('last-update').textContent=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   }).catch(function(){document.getElementById('last-update').textContent='Fehler';});
+  loadEinreichungen();
+}
+
+/* ── TAB 4: EINREICHUNGEN (Storage) ── */
+var einStatus={};
+function loadEinreichungen(){
+  fetch(SB_URL+'/storage/v1/object/list/backki-berichte',{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({prefix:'uploads/',limit:200,sortBy:{column:'created_at',order:'desc'}})
+  }).then(function(r){return r.json();}).then(function(files){
+    if(!Array.isArray(files))files=[];
+    // Status aus localStorage laden
+    try{einStatus=JSON.parse(localStorage.getItem('backki_ein_status')||'{}');}catch(e){einStatus={};}
+    var heute=files.filter(function(f){return f.created_at&&new Date(f.created_at).toDateString()===new Date().toDateString();}).length;
+    var offen=files.filter(function(f){return !einStatus[f.name];}).length;
+    var done=files.filter(function(f){return einStatus[f.name]==='done';}).length;
+    document.getElementById('k-ein-total').textContent=files.length;
+    document.getElementById('k-ein-offen').textContent=offen;
+    document.getElementById('k-ein-done').textContent=done;
+    document.getElementById('k-ein-heute').textContent=heute;
+    document.getElementById('ein-count').textContent=files.length+' Dateien';
+
+    if(!files.length){
+      document.getElementById('ein-wrap').innerHTML='<div class="empty"><div class="empty-icon">📂</div><div class="empty-text">Noch keine Einreichungen — warte auf ersten Kunden 🎯</div></div>';
+      return;
+    }
+    document.getElementById('ein-wrap').innerHTML='<table class="data-table"><thead><tr>'+
+      '<th>Eingegangen</th><th>Dateiname</th><th>Größe</th><th>Status</th><th>Aktion</th></tr></thead><tbody>'+
+      files.map(function(f){
+        var st=einStatus[f.name]||'offen';
+        var badge=st==='done'?'<span class="badge badge-green">✓ Erledigt</span>':'<span class="badge badge-red">⏳ Offen</span>';
+        var size=f.metadata&&f.metadata.size?Math.round(f.metadata.size/1024)+' KB':'–';
+        var dlUrl=SB_URL+'/storage/v1/object/backki-berichte/uploads/'+f.name;
+        var togLabel=st==='done'?'↩ Offen setzen':'✓ Erledigt';
+        return '<tr>'+
+          '<td class="mono">'+fmtDate(f.created_at)+'</td>'+
+          '<td style="color:var(--cream);font-size:11px;max-width:260px;word-break:break-all">'+f.name+'</td>'+
+          '<td class="mono">'+size+'</td>'+
+          '<td>'+badge+'</td>'+
+          '<td style="display:flex;gap:8px;flex-wrap:wrap">'+
+            '<a href="'+dlUrl+'" target="_blank" style="background:var(--crust);color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none">⬇ Download</a>'+
+            '<button onclick="toggleStatus(\''+f.name+'\')" style="background:var(--border);border:1px solid var(--border2);color:var(--smoke);padding:4px 12px;border-radius:6px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif">'+togLabel+'</button>'+
+          '</td></tr>';
+      }).join('')+'</tbody></table>';
+  }).catch(function(){
+    document.getElementById('ein-wrap').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Fehler beim Laden der Dateien</div></div>';
+  });
+}
+
+function toggleStatus(name){
+  try{einStatus=JSON.parse(localStorage.getItem('backki_ein_status')||'{}');}catch(e){einStatus={};}
+  einStatus[name]=einStatus[name]==='done'?'offen':'done';
+  localStorage.setItem('backki_ein_status',JSON.stringify(einStatus));
+  loadEinreichungen();
 }
 
 /* ── TAB 1: LEADS ── */
